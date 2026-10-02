@@ -47,3 +47,10 @@ yarn-error.*
 *.keystore
 credentials.json
 .claude/settings.local.json
+# secrets et signature
+.env
+*.keystore
+credentials.json
+
+# réglages personnels de l'assistant
+.claude/settings.local.json

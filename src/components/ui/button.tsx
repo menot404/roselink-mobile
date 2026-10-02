@@ -3,7 +3,7 @@ import { Pressable, Text } from "react-native";
 
 import { useAppTheme } from "@/context/theme-context";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Props = {
   label: string;
   onPress?: () => void;
@@ -22,12 +22,17 @@ const STYLES: Record<Variant, { box: string; text: string }> = {
     text: "text-primary dark:text-primary-dark",
   },
   ghost: { box: "", text: "text-primary dark:text-primary-dark" },
+  danger: {
+    box: "border border-alert dark:border-alert-dark",
+    text: "text-alert dark:text-alert-dark",
+  },
 };
 
 export function Button({ label, onPress, variant = "primary", icon: Icon, disabled }: Props) {
   const { colors } = useAppTheme();
   const style = STYLES[variant];
-  const iconColor = variant === "primary" ? colors.onPrimary : colors.primary;
+  const iconColor =
+    variant === "primary" ? colors.onPrimary : variant === "danger" ? colors.alert : colors.primary;
 
   return (
     <Pressable

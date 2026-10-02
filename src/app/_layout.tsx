@@ -17,12 +17,15 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { AuthProvider, useAuth } from "@/context/auth-context";
 import { AppThemeProvider, useAppTheme } from "@/context/theme-context";
 
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
   const { scheme, colors } = useAppTheme();
+  const { ready, isSignedIn } = useAuth();
+
   const base = scheme === "dark" ? DarkTheme : DefaultTheme;
   const navigationTheme = {
     ...base,
@@ -36,20 +39,31 @@ function RootNavigator() {
     },
   };
 
+  if (!ready) return null;
+
   return (
     <NavigationThemeProvider value={navigationTheme}>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
       <AnimatedSplashOverlay />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen
-          name="reglages"
-          options={{
-            headerShown: true,
-            title: "Réglages",
-            presentation: "modal",
-          }}
-        />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerShadowVisible: false,
+          headerTitleStyle: { fontFamily: "PlusJakartaSans_700Bold" },
+        }}
+      >
+        <Stack.Screen name="index" />
+
+        <Stack.Protected guard={!isSignedIn}>
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="connexion" options={{ headerShown: true, title: "Connexion" }} />
+          <Stack.Screen name="inscription" options={{ headerShown: true, title: "Créer mon compte" }} />
+        </Stack.Protected>
+
+        <Stack.Protected guard={isSignedIn}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="profil" options={{ headerShown: true, title: "Mon profil" }} />
+        </Stack.Protected>
       </Stack>
     </NavigationThemeProvider>
   );
@@ -67,7 +81,9 @@ export default function RootLayout() {
 
   return (
     <AppThemeProvider>
-      <RootNavigator />
+      <AuthProvider>
+        <RootNavigator />
+      </AuthProvider>
     </AppThemeProvider>
   );
 }

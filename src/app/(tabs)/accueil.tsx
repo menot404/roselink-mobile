@@ -1,37 +1,28 @@
 import { useRouter } from "expo-router";
-import { Headphones, MapPin, MessageCircleHeart, Settings, Stethoscope } from "lucide-react-native";
-import { Pressable, Text, View } from "react-native";
-
+import {
+  Headphones,
+  MapPin,
+  MessageCircleHeart,
+  Stethoscope,
+} from "lucide-react-native";
+import { Text, View } from "react-native";
 import { ActionTile } from "@/components/ui/action-tile";
 import { Disclaimer } from "@/components/ui/disclaimer";
 import { HeroCard } from "@/components/ui/hero-card";
 import { Screen } from "@/components/ui/screen";
 import { SectionTitle } from "@/components/ui/section-title";
-import { useAppTheme } from "@/context/theme-context";
 
 export default function Accueil() {
   const router = useRouter();
-  const { colors } = useAppTheme();
 
   return (
     <Screen>
-      <View className="flex-row items-center justify-between">
-        <View className="gap-0.5">
-          <Text className="font-jakarta-medium text-sm text-ink-soft dark:text-ink-soft-dark">
-            Bienvenue sur
-          </Text>
-          <Text className="font-jakarta-bold text-[28px] leading-9 text-primary dark:text-primary-dark">
-            RoseLink
-          </Text>
-        </View>
-        <Pressable
-          onPress={() => router.push("/reglages")}
-          accessibilityRole="button"
-          accessibilityLabel="Ouvrir les réglages"
-          className="h-12 w-12 items-center justify-center rounded-full border border-line bg-surface active:opacity-80 dark:border-line-dark dark:bg-surface-dark"
-        >
-          <Settings size={22} color={colors.primary} />
-        </Pressable>
+      <View className="gap-0.5">
+        <Text className="font-jakarta-medium text-sm text-ink-soft dark:text-ink-soft-dark">
+        </Text>
+        <Text className="font-jakarta-bold text-[26px] leading-8 text-ink dark:text-ink-dark">
+          Prends soin de toi
+        </Text>
       </View>
 
       <HeroCard

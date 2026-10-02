@@ -2,17 +2,28 @@ import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type Props = { children: ReactNode; padTop?: boolean };
+import { TAB_BAR_CLEARANCE } from "@/constants/layout";
+import { useTabBarSpace } from "@/context/tab-bar-space";
 
-export function Screen({ children, padTop = true }: Props) {
+type Props = {
+  children: ReactNode;
+  padTop?: boolean;
+  /** Obsolète : détecté automatiquement dans les onglets */
+  withTabBar?: boolean;
+};
+
+export function Screen({ children, padTop = true, withTabBar = false }: Props) {
   const insets = useSafeAreaInsets();
+  const inTabs = useTabBarSpace();
+  const hasTabBar = inTabs || withTabBar;
+  const paddingTop = padTop && !inTabs ? insets.top + 16 : 16;
 
   return (
     <ScrollView
       className="flex-1 bg-canvas dark:bg-canvas-dark"
       contentContainerStyle={{
-        paddingTop: padTop ? insets.top + 16 : 16,
-        paddingBottom: insets.bottom + 32,
+        paddingTop,
+        paddingBottom: insets.bottom + (hasTabBar ? TAB_BAR_CLEARANCE : 32),
         paddingHorizontal: 20,
       }}
       showsVerticalScrollIndicator={false}

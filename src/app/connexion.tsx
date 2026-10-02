@@ -63,9 +63,10 @@ export default function Connexion() {
         ) : null}
         <Button label="Se connecter" icon={LogIn} onPress={submit} />
       </Card>
-      <Pressable onPress={() => router.replace("/")} accessibilityRole="link" className="min-h-11 items-center justify-center">
+      <Pressable onPress={() => router.replace("/inscription")} accessibilityRole="link" className="min-h-11 items-center justify-center">
         <Text className="font-jakarta-semibold text-sm text-primary dark:text-primary-dark">
-            Content de te revoir. Connecte-toi pour retrouver ton parcours.        </Text>
+            Pas encore de compte ? Inscris-toi
+        </Text>
       </Pressable>
       <Text className="text-center font-jakarta text-xs text-ink-soft dark:text-ink-soft-dark">
         Version de démonstration : le compte reste sur ce téléphone et le mot de passe n'est ni vérifié ni enregistré.

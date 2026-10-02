@@ -10,13 +10,13 @@ import {
 import {
   DarkTheme,
   DefaultTheme,
+  Stack,
   ThemeProvider as NavigationThemeProvider,
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
-import AppTabs from "@/components/app-tabs";
 import { AppThemeProvider, useAppTheme } from "@/context/theme-context";
 
 SplashScreen.preventAutoHideAsync();
@@ -40,7 +40,17 @@ function RootNavigator() {
     <NavigationThemeProvider value={navigationTheme}>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
       <AnimatedSplashOverlay />
-      <AppTabs />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="reglages"
+          options={{
+            headerShown: true,
+            title: "Réglages",
+            presentation: "modal",
+          }}
+        />
+      </Stack>
     </NavigationThemeProvider>
   );
 }

@@ -67,9 +67,7 @@ export default function Signes() {
       <Card className="gap-3 bg-primary-soft dark:bg-primary-soft-dark">
         <View className="flex-row items-center gap-2">
           <Info size={20} color={colors.primary} />
-          <Text className="font-jakarta-bold text-base text-ink dark:text-ink-dark">
-            À retenir
-          </Text>
+          <Text className="font-jakarta-bold text-base text-ink dark:text-ink-dark">À retenir</Text>
         </View>
         {KEY_POINTS.map((point) => (
           <View key={point} className="flex-row items-start gap-3">

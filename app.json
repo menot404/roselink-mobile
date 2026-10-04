@@ -34,7 +34,13 @@
         }
       ],
       "expo-font",
-      ["expo-location", { "locationWhenInUsePermission": "RoseLink utilise votre position, uniquement sur votre téléphone, pour trouver les centres de dépistage les plus proches." }]
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "RoseLink utilise votre position, uniquement sur votre téléphone, pour trouver les centres de dépistage les plus proches."
+        }
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true,

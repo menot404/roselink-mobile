@@ -60,7 +60,7 @@ export default function Accueil() {
             title="Écouter"
             subtitle="Conseils en audio"
             icon={Headphones}
-            onPress={() => router.push("/parcours")}
+            onPress={() => router.push("/audio")}
           />
         </View>
       </View>

@@ -1,4 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
+import { useKeyboardVisible } from "@/lib/use-keyboard-visible";
 import {
   HeartHandshake,
   House,
@@ -33,6 +34,9 @@ const TABS: Record<string, { label: string; Icon: LucideIcon }> = {
 export function FloatingTabBar({ state, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
   const { colors, scheme } = useAppTheme();
+  const keyboardVisible = useKeyboardVisible();
+  if (keyboardVisible) return null;
+
   const centerIndex = Math.floor(state.routes.length / 2);
   const centerGradient =
     scheme === "dark"

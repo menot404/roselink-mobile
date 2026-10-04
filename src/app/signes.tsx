@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import {
   CircleDot,
   Droplets,
+  Hand,
   Info,
   Layers,
   MapPin,
@@ -16,6 +17,7 @@ import { Text, View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Disclaimer } from "@/components/ui/disclaimer";
+import { ReviewNotice } from "@/components/ui/review-notice";
 import { Screen } from "@/components/ui/screen";
 import { SectionTitle } from "@/components/ui/section-title";
 import { useAppTheme } from "@/context/theme-context";
@@ -87,19 +89,21 @@ export default function Signes() {
         ))}
       </Card>
 
-      <Button
-        label="Trouver un centre près de moi"
-        icon={MapPin}
-        onPress={() => router.push("/carte")}
-      />
+      <View className="gap-3">
+        <Button
+          label="Trouver un centre près de moi"
+          icon={MapPin}
+          onPress={() => router.push("/carte")}
+        />
+        <Button
+          label="Apprendre le geste mensuel"
+          icon={Hand}
+          variant="secondary"
+          onPress={() => router.push("/connaitre")}
+        />
+      </View>
 
-      <Text className="text-center font-jakarta text-xs text-ink-soft dark:text-ink-soft-dark">
-        {CONTENT_REVIEW.validated
-          ? `Contenu validé par ${CONTENT_REVIEW.reviewer ?? "un professionnel de santé"}${
-              CONTENT_REVIEW.reviewedAt ? ` le ${CONTENT_REVIEW.reviewedAt}` : ""
-            }.`
-          : "Contenu en cours de relecture par un professionnel de santé."}
-      </Text>
+      <ReviewNotice {...CONTENT_REVIEW} />
       <Disclaimer />
     </Screen>
   );

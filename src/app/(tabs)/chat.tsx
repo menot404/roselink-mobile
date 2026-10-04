@@ -1,7 +1,15 @@
 import { useRouter } from "expo-router";
 import { Info, Send, Trash2 } from "lucide-react-native";
-import { useEffect, useRef, useState } from "react";
-import { FlatList, KeyboardAvoidingView, Pressable, Text, TextInput, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  FlatList,
+  InteractionManager,
+  KeyboardAvoidingView,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { TAB_BAR_CLEARANCE } from "@/constants/layout";
@@ -14,6 +22,9 @@ import type { ChatRoute } from "@/features/chat/knowledge/types";
 import { newId, type ChatMessage } from "@/features/chat/message";
 import { selfCheck } from "@/features/chat/selfcheck";
 import { useKeyboardVisible } from "@/lib/use-keyboard-visible";
+
+const keyExtractor = (item: ChatMessage) => item.id;
+const listContent = { padding: 16, gap: 14 } as const;
 
 function welcome(firstName?: string, support?: boolean): ChatMessage {
   const hello = firstName ? `Bonjour ${firstName}` : "Bonjour";
@@ -49,13 +60,17 @@ export default function Chat() {
   const [draft, setDraft] = useState("");
 
   useEffect(() => {
-    if (__DEV__) {
-      const problems = selfCheck();
-      if (problems.length > 0) {
-        console.warn(`Chat : ${problems.length} problème(s)\n${problems.join("\n")}`);
-      }
-    }
+    // vérification de la base : en développement seulement, et après l'affichage de l'écran
+    const task = __DEV__
+      ? InteractionManager.runAfterInteractions(() => {
+          const problems = selfCheck();
+          if (problems.length > 0) {
+            console.warn(`Chat : ${problems.length} problème(s)\n${problems.join("\n")}`);
+          }
+        })
+      : null;
     return () => {
+      task?.cancel();
       if (timer.current) clearTimeout(timer.current);
     };
   }, []);
@@ -100,7 +115,13 @@ export default function Chat() {
     setMessages([welcome(user?.firstName, user?.profile === "support")]);
   };
 
-  const onAction = (href: ChatRoute) => router.push(href);
+  const onAction = useCallback((href: ChatRoute) => router.push(href), [router]);
+
+  const renderItem = useCallback(
+    ({ item }: { item: ChatMessage }) => <ChatBubble message={item} onAction={onAction} />,
+    [onAction],
+  );
+
   const canSend = draft.trim().length > 0 && !typing;
 
   const footer = (
@@ -150,13 +171,15 @@ export default function Chat() {
       <FlatList
         ref={listRef}
         data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ChatBubble message={item} onAction={onAction} />}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
         ListFooterComponent={footer}
-        contentContainerStyle={{ padding: 16, gap: 14 }}
+        contentContainerStyle={listContent}
         onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        initialNumToRender={12}
+        windowSize={9}
       />
 
       <View

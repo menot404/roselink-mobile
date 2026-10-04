@@ -10,7 +10,10 @@ export type SourceId =
   | "zcf"
   | "sante-bf"
   | "msd"
-  | "quotidien";
+  | "quotidien"
+  | "burkina24-or"
+  | "burkina24-mt"
+  | "minute-mt";
 
 export type Source = {
   id: SourceId;
@@ -24,7 +27,13 @@ export type Source = {
   kind: "officielle" | "presse" | "reference-medicale";
 };
 
-export type ChatRoute = "/carte" | "/signes" | "/association" | "/parcours";
+export type ChatRoute =
+  | "/carte"
+  | "/signes"
+  | "/association"
+  | "/parcours"
+  | "/connaitre"
+  | "/mythes";
 export type ChatAction = { label: string; href: ChatRoute };
 
 export type Intent = {

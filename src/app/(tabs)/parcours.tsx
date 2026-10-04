@@ -18,7 +18,8 @@ import { HubCard } from "@/components/ui/hub-card";
 import { Screen } from "@/components/ui/screen";
 import { useAuth } from "@/context/auth-context";
 
-type Entry = { title: string; subtitle: string; icon: LucideIcon; href?: "/signes" };
+type Href = "/signes" | "/connaitre" | "/mythes";
+type Entry = { title: string; subtitle: string; icon: LucideIcon; href?: Href };
 
 const PREVENTION: Entry[] = [
   {
@@ -27,8 +28,18 @@ const PREVENTION: Entry[] = [
     icon: Stethoscope,
     href: "/signes",
   },
-  { title: "Connaître ses seins", subtitle: "Le geste mensuel, pas à pas.", icon: Hand },
-  { title: "Mythes ou réalités", subtitle: "Démêler le vrai du faux.", icon: Lightbulb },
+  {
+    title: "Connaître ses seins",
+    subtitle: "Le geste mensuel, pas à pas.",
+    icon: Hand,
+    href: "/connaitre",
+  },
+  {
+    title: "Mythes ou réalités",
+    subtitle: "Démêler le vrai du faux.",
+    icon: Lightbulb,
+    href: "/mythes",
+  },
   {
     title: "Conseils en audio",
     subtitle: "Écouter des experts, dans votre langue.",
@@ -68,15 +79,18 @@ export default function Parcours() {
         }
       />
       <View className="gap-3">
-        {entries.map((entry) => (
-          <HubCard
-            key={entry.title}
-            title={entry.title}
-            subtitle={entry.subtitle}
-            icon={entry.icon}
-            onPress={entry.href ? () => router.push(entry.href as "/signes") : undefined}
-          />
-        ))}
+        {entries.map((entry) => {
+          const { href } = entry;
+          return (
+            <HubCard
+              key={entry.title}
+              title={entry.title}
+              subtitle={entry.subtitle}
+              icon={entry.icon}
+              onPress={href ? () => router.push(href) : undefined}
+            />
+          );
+        })}
       </View>
       <Disclaimer />
     </Screen>

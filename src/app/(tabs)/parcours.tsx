@@ -18,7 +18,7 @@ import { HubCard } from "@/components/ui/hub-card";
 import { Screen } from "@/components/ui/screen";
 import { useAuth } from "@/context/auth-context";
 
-type Href = "/signes" | "/connaitre" | "/mythes";
+type Href = "/signes" | "/connaitre" | "/mythes" | "/audio";
 type Entry = { title: string; subtitle: string; icon: LucideIcon; href?: Href };
 
 const PREVENTION: Entry[] = [
@@ -44,6 +44,7 @@ const PREVENTION: Entry[] = [
     title: "Conseils en audio",
     subtitle: "Écouter des experts, dans votre langue.",
     icon: Headphones,
+    href: "/audio",
   },
 ];
 

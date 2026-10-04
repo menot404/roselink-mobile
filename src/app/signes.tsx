@@ -3,6 +3,7 @@ import {
   CircleDot,
   Droplets,
   Hand,
+  Headphones,
   Info,
   Layers,
   MapPin,
@@ -100,6 +101,12 @@ export default function Signes() {
           icon={Hand}
           variant="secondary"
           onPress={() => router.push("/connaitre")}
+        />
+        <Button
+          label="Écouter les signes"
+          icon={Headphones}
+          variant="secondary"
+          onPress={() => router.push({ pathname: "/audio", params: { id: "signes-fr" } })}
         />
       </View>
 

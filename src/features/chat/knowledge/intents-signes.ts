@@ -20,6 +20,7 @@ export const SIGNES_INTENTS: Intent[] = [
       "D'après l'OMS, les principaux signes sont : une boule ou un épaississement du sein, souvent sans douleur ; un changement de taille, de forme ou d'aspect ; des fossettes, une rougeur ou d'autres changements de la peau ; un changement du mamelon ou de la peau autour ; un liquide anormal ou sanglant qui sort du mamelon. Ces signes ne veulent pas dire cancer, mais ils méritent un examen.",
     actions: [
       { label: "Voir les signes en images", href: "/signes" },
+      { label: "Écouter", href: "/audio" },
       { label: "Trouver un centre", href: "/carte" },
     ],
     followUps: ["J'ai senti une boule", "Comment me palper ?", "Où me faire dépister ?"],

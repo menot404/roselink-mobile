@@ -33,7 +33,8 @@ export type ChatRoute =
   | "/association"
   | "/parcours"
   | "/connaitre"
-  | "/mythes";
+  | "/mythes"
+  | "/audio";
 export type ChatAction = { label: string; href: ChatRoute };
 
 export type Intent = {

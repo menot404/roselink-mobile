@@ -225,7 +225,10 @@ export const SIGNES_INTENTS: Intent[] = [
     ],
     reply:
       "Connaître ses seins aide à repérer un changement. Une fois par mois, quelques jours après la fin des règles : 1) regardez-vous dans un miroir, bras le long du corps puis levés ; 2) avec trois doigts à plat, faites de petits cercles sur tout le sein jusqu'à l'aisselle, debout puis allongée ; 3) observez le mamelon. Au Burkina Faso, l'autopalpation est encouragée, suivie d'un examen par un professionnel en cas de doute. Elle ne remplace pas le dépistage.",
-    actions: [{ label: "Voir les signes en images", href: "/signes" }],
+    actions: [
+      { label: "Guide pas à pas", href: "/connaitre" },
+      { label: "Voir les signes en images", href: "/signes" },
+    ],
     followUps: ["Quand le faire ?", "Quels sont les signes ?", "Où me faire dépister ?"],
   },
   {
@@ -244,6 +247,7 @@ export const SIGNES_INTENTS: Intent[] = [
     ],
     reply:
       "Une fois par mois suffit, à peu près au même moment du cycle : quelques jours après la fin des règles, quand les seins sont moins sensibles. Si vous n'avez plus de règles, choisissez un jour fixe du mois. L'important est la régularité, pas la perfection.",
+    actions: [{ label: "Guide pas à pas", href: "/connaitre" }],
     followUps: ["Comment me palper ?", "Quels sont les signes ?"],
   },
 ];

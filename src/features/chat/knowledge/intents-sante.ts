@@ -103,6 +103,15 @@ export const SANTE_INTENTS: Intent[] = [
     followUps: ["Quels sont les signes ?", "Où me faire dépister ?"],
   },
   {
+    id: "quiz",
+    status: "sourced",
+    keywords: ["quiz", "jouer", "idees recues", "idee recue", "vrai ou faux", "mythes ou realites", "mythe*"],
+    reply:
+      "Il existe beaucoup d'idées reçues sur le cancer du sein. Le quiz « Mythes ou réalités » vous propose 10 affirmations, avec à chaque fois une explication et les sources. C'est rapide, et sans jugement.",
+    actions: [{ label: "Jouer au quiz", href: "/mythes" }],
+    followUps: ["C'est une malédiction ?", "Est-ce contagieux ?"],
+  },
+  {
     id: "mythe_malediction",
     status: "sourced",
     sources: ["who-bc"],
@@ -118,6 +127,7 @@ export const SANTE_INTENTS: Intent[] = [
     ],
     reply:
       "Non. Le cancer du sein est une maladie, pas une malédiction ni une punition. Il n'est causé ni par la sorcellerie ni par une faute. Comme d'autres maladies, il peut être dépisté et soigné, et les traitements sont d'autant plus efficaces qu'il est repéré tôt.",
+    actions: [{ label: "Jouer au quiz", href: "/mythes" }],
     followUps: ["Est-ce contagieux ?", "Quels sont les risques ?"],
   },
   {

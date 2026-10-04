@@ -8,13 +8,16 @@ export const BURKINA_INTENTS: Intent[] = [
   {
     id: "gratuite",
     status: "review",
-    sources: ["sidwaya", "apidpm", "fasoamazone"],
+    sources: ["burkina24-or", "sidwaya", "apidpm"],
     keywords: [
       "gratuit*",
       "depistage gratuit",
       "examen gratuit",
       "c est gratuit",
       "est ce gratuit",
+      "gratuit en octobre",
+      "gratuit pendant octobre",
+      "octobre gratuit",
       "cout*",
       "prix",
       "payer",
@@ -22,14 +25,14 @@ export const BURKINA_INTENTS: Intent[] = [
       "combien ca coute",
     ],
     reply:
-      "Au Burkina Faso, la gratuité du dépistage des cancers du sein et gynécologiques est annoncée dans les formations sanitaires publiques, et l'échographie et la mammographie sont décrites comme gratuites dans les CHU et hôpitaux régionaux qui en disposent. Le dépistage est aussi annoncé gratuit dans les cliniques mobiles. Les règles et la disponibilité peuvent changer : confirmez auprès du centre avant de vous déplacer.",
+      "Pour Octobre Rose 2026, le ministre de la Santé a annoncé que les activités sont gratuites : les cliniques mobiles dépistent pendant tout le mois, dans les villages, les communes rurales et les sites fixes, et le gouvernement vise 6 000 écho-mammographies gratuites. En dehors d'octobre, la gratuité est annoncée dans les structures publiques. Les règles et la disponibilité peuvent changer : confirmez auprès du centre avant de vous déplacer.",
     actions: [{ label: "Trouver un centre", href: "/carte" }],
     followUps: ["Y a-t-il des cliniques mobiles ?", "Où me faire dépister ?", "Je n'ai pas d'argent"],
   },
   {
     id: "cliniques_mobiles",
     status: "review",
-    sources: ["fasoamazone", "sidwaya", "lepays"],
+    sources: ["burkina24-or", "fasoamazone", "sidwaya"],
     keywords: [
       "clinique mobile",
       "cliniques mobiles",
@@ -42,7 +45,7 @@ export const BURKINA_INTENTS: Intent[] = [
       "village*",
     ],
     reply:
-      "Depuis le 25 juillet 2024, des cliniques mobiles sont déployées dans toutes les régions du pays pour dépister les cancers du sein et du col de l'utérus. Elles se rapprochent des populations, y compris en zone rurale. Pour connaître le calendrier près de chez vous, renseignez-vous auprès de votre centre de santé ou de la direction régionale de la santé.",
+      "Depuis le 25 juillet 2024, des cliniques mobiles sont déployées dans toutes les régions du pays pour dépister les cancers du sein et du col de l'utérus, y compris en zone rurale. Pendant Octobre Rose 2026, elles sont annoncées actives tout le mois, en plus des sites fixes. Pour connaître le calendrier près de chez vous, renseignez-vous auprès de votre centre de santé ou de la direction régionale de la santé.",
     actions: [{ label: "Voir la carte", href: "/carte" }],
     followUps: ["C'est gratuit ?", "Où me faire dépister ?"],
   },
@@ -115,12 +118,31 @@ export const BURKINA_INTENTS: Intent[] = [
   },
   {
     id: "octobre_rose",
-    status: "sourced",
-    sources: ["who-bcam", "lepays"],
+    status: "review",
+    sources: ["who-bcam", "burkina24-or", "lepays"],
     keywords: ["octobre rose", "campagne*", "pourquoi rose", "pourquoi octobre", "ruban rose"],
     reply:
-      "Octobre Rose est le mois mondial de sensibilisation au cancer du sein, chaque année en octobre. Il rappelle l'importance de connaître les signes, de consulter vite et de se faire dépister. Au Burkina Faso, des campagnes de sensibilisation et de dépistage ont lieu pendant ce mois. Vous pouvez en profiter, mais un examen est utile à n'importe quel moment de l'année.",
+      "Octobre Rose est le mois mondial de sensibilisation au cancer du sein, chaque année en octobre. Il rappelle l'importance de connaître les signes, de consulter vite et de se faire dépister. Au Burkina Faso, l'édition 2026 a été lancée officiellement le 3 octobre à Saaba. Vous pouvez en profiter, mais un examen est utile à n'importe quel moment de l'année.",
     followUps: ["Où me faire dépister ?", "C'est gratuit ?"],
+  },
+  {
+    id: "mammatyper",
+    status: "review",
+    sources: ["burkina24-mt", "minute-mt"],
+    keywords: [
+      "mammatyper",
+      "mammtyper",
+      "mamatyper",
+      "mamatiper",
+      "diagnostic moleculaire",
+      "test moleculaire",
+      "sous type moleculaire",
+      "sous types moleculaires",
+      "biologie moleculaire",
+    ],
+    reply:
+      "MammaTyper est un test de diagnostic moléculaire du cancer du sein, rendu disponible au Burkina Faso dans les CHU de Bogodogo (Ouagadougou) et de Pala (Bobo-Dioulasso). Il ne sert pas au dépistage : il est utilisé par l'équipe médicale, après le diagnostic, pour déterminer le sous-type moléculaire du cancer et adapter le traitement. Les résultats seraient disponibles en environ six heures, alors que cette analyse nécessitait auparavant de recourir à l'extérieur du pays. C'est l'équipe soignante qui décide de son usage.",
+    followUps: ["Comment se soigne-t-il ?", "Où me faire dépister ?"],
   },
   {
     id: "associations",

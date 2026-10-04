@@ -64,6 +64,8 @@ function RootNavigator() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="profil" options={{ headerShown: true, title: "Mon profil" }} />
           <Stack.Screen name="signes" options={{ headerShown: true, title: "Signes d'alerte" }} />
+          <Stack.Screen name="connaitre" options={{ headerShown: true, title: "Connaître ses seins" }} />
+          <Stack.Screen name="mythes" options={{ headerShown: true, title: "Mythes ou réalités" }} />
         </Stack.Protected>
       </Stack>
     </NavigationThemeProvider>

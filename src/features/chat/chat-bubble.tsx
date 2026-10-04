@@ -1,11 +1,12 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowRight, ExternalLink, Heart, Info } from "lucide-react-native";
-import { Linking, Pressable, Text, View } from "react-native";
+import { ArrowRight, Heart, Info } from "lucide-react-native";
+import { memo } from "react";
+import { Pressable, Text, View } from "react-native";
 
+import { SourceLinks } from "@/components/ui/source-links";
 import { useAppTheme } from "@/context/theme-context";
 
 import { SHOW_REVIEW_BADGE } from "./config";
-import { SOURCES } from "./knowledge";
 import type { ChatRoute } from "./knowledge/types";
 import type { ChatMessage } from "./message";
 import { TypingDots } from "./typing-dots";
@@ -43,7 +44,8 @@ export function TypingBubble() {
 
 type Props = { message: ChatMessage; onAction: (href: ChatRoute) => void };
 
-export function ChatBubble({ message, onAction }: Props) {
+/** Mémorisé : une bulle n'est redessinée que si son message change. */
+export const ChatBubble = memo(function ChatBubble({ message, onAction }: Props) {
   const { colors } = useAppTheme();
 
   if (message.role === "user") {
@@ -61,20 +63,12 @@ export function ChatBubble({ message, onAction }: Props) {
     );
   }
 
-  // une seule pastille par organisme (par exemple « OMS » une seule fois)
-  const sources = message.sourceIds
-    .map((id) => SOURCES[id])
-    .filter((source, index, all) => all.findIndex((s) => s.short === source.short) === index);
-
   return (
     <View className="flex-row items-start gap-2">
       <Avatar />
       <View style={{ maxWidth: "85%", flexShrink: 1 }} className="gap-2">
         <View className="rounded-2xl rounded-tl-md border border-line bg-surface px-4 py-3 dark:border-line-dark dark:bg-surface-dark">
-          <Text
-            selectable
-            className="font-jakarta text-[15px] leading-6 text-ink dark:text-ink-dark"
-          >
+          <Text className="font-jakarta text-[15px] leading-6 text-ink dark:text-ink-dark">
             {message.text}
           </Text>
         </View>
@@ -98,28 +92,7 @@ export function ChatBubble({ message, onAction }: Props) {
           </View>
         ) : null}
 
-        {sources.length > 0 ? (
-          <View className="flex-row flex-wrap items-center gap-x-2 gap-y-1">
-            <Text className="font-jakarta text-[11px] text-ink-soft dark:text-ink-soft-dark">
-              Sources :
-            </Text>
-            {sources.map((source) => (
-              <Pressable
-                key={source.id}
-                onPress={() => Linking.openURL(source.url).catch(() => {})}
-                accessibilityRole="link"
-                accessibilityLabel={`Ouvrir la source ${source.short}`}
-                hitSlop={8}
-                className="flex-row items-center gap-1"
-              >
-                <Text className="font-jakarta-semibold text-[11px] text-primary dark:text-primary-dark">
-                  {source.short}
-                </Text>
-                <ExternalLink size={11} color={colors.primary} />
-              </Pressable>
-            ))}
-          </View>
-        ) : null}
+        <SourceLinks ids={message.sourceIds} />
 
         {SHOW_REVIEW_BADGE && message.needsReview ? (
           <View className="flex-row items-center gap-1.5">
@@ -132,4 +105,4 @@ export function ChatBubble({ message, onAction }: Props) {
       </View>
     </View>
   );
-}
+});

@@ -57,6 +57,12 @@ export const TEST_CASES: [string, string][] = [
   ["Le deodorant donne le cancer ?", "mythe_objets"],
   ["mamographie c'est quoi", "mammographie"],
   ["Est-ce que je dois m'inquiéter pour une boule indolore ?", "boule"],
+  ["C'est quoi le MammaTyper ?", "mammatyper"],
+  ["Parlez-moi du diagnostic moléculaire", "mammatyper"],
+  ["Octobre est gratuit ?", "gratuite"],
+  ["Est-ce gratuit en octobre rose ?", "gratuite"],
+  ["Je veux jouer au quiz", "quiz"],
+  ["Y a-t-il des idées reçues ?", "quiz"],
   ["Quelle est la capitale de la France ?", "(repli)"],
   ["", "(repli)"],
 ];

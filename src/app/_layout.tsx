@@ -67,6 +67,8 @@ function RootNavigator() {
           <Stack.Screen name="connaitre" options={{ headerShown: true, title: "Connaître ses seins" }} />
           <Stack.Screen name="mythes" options={{ headerShown: true, title: "Mythes ou réalités" }} />
           <Stack.Screen name="audio" options={{ headerShown: true, title: "Conseils en audio" }} />
+          <Stack.Screen name="don" options={{ headerShown: true, title: "Faire un don" }} />
+          <Stack.Screen name="aide" options={{ headerShown: true, title: "Aide et solidarité" }} />
         </Stack.Protected>
       </Stack>
     </NavigationThemeProvider>

@@ -6,7 +6,7 @@ export const SUPPORT_VIE_INTENTS: Intent[] = [
     id: "image_de_soi",
     status: "review",
     sources: ["inca-image"],
-    actions: [{ label: "Voir les options", href: "/parcours" }],
+    actions: [{ label: "Découvrir les options", href: "/reconstruction" }],
     keywords: [
       "plus femme",
       "moche",
@@ -181,6 +181,7 @@ export const SUPPORT_VIE_INTENTS: Intent[] = [
     id: "espoir",
     status: "review",
     sources: ["who-bc"],
+    actions: [{ label: "Lire des histoires", href: "/histoires" }],
     keywords: [
       "espoir",
       "guerir",

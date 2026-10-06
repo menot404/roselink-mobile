@@ -106,6 +106,15 @@ export default function Profil() {
       </Card>
 
       <SectionLabel>Réglages</SectionLabel>
+      <Card>
+        <OptionGroup
+          label="Mon parcours"
+          hint="Vous pouvez changer à tout moment."
+          options={PROFILE_OPTIONS}
+          value={user.profile}
+          onChange={(value) => void updateAccount({ profile: value })}
+        />
+      </Card>
       <Card className="gap-3">
         <Text className="font-jakarta-semibold text-base text-ink dark:text-ink-dark">
           Apparence
@@ -113,9 +122,8 @@ export default function Profil() {
         <ThemeSwitcher />
         <Text className="font-jakarta text-xs text-ink-soft dark:text-ink-soft-dark">
           {preference === "system"
-            ? `Suit le thème de ton téléphone (actuellement : ${
-                systemScheme === "dark" ? "sombre" : "clair"
-              }).`
+            ? `Suit le thème de ton téléphone (actuellement : ${systemScheme === "dark" ? "sombre" : "clair"
+            }).`
             : "Choix manuel. Passe sur « Auto » pour suivre ton téléphone."}
         </Text>
       </Card>

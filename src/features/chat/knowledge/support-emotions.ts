@@ -143,7 +143,8 @@ export const SUPPORT_EMOTION_INTENTS: Intent[] = [
   {
     id: "peur",
     status: "review",
-    actions: [BREATH],
+    // relaxation : remplacez actions: [BREATH] par
+    actions: [{ label: "Exercice animé", href: "/respiration" }, BREATH],
     keywords: [
       "peur*",
       "j ai peur",
@@ -194,7 +195,9 @@ export const SUPPORT_EMOTION_INTENTS: Intent[] = [
   {
     id: "tristesse",
     status: "review",
-    actions: [SUPPORT_AUDIO],
+
+    // tristesse : remplacez actions: [SUPPORT_AUDIO] par
+    actions: [SUPPORT_AUDIO, { label: "Noter mon humeur", href: "/humeur" }],
     keywords: [
       "triste*",
       "tristesse",

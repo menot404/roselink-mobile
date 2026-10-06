@@ -81,11 +81,11 @@ export default function Chat() {
     // vérification des bases : en développement seulement, et après l'affichage de l'écran
     const task = __DEV__
       ? InteractionManager.runAfterInteractions(() => {
-          const problems = selfCheck();
-          if (problems.length > 0) {
-            console.warn(`Chat : ${problems.length} problème(s)\n${problems.join("\n")}`);
-          }
-        })
+        const problems = selfCheck();
+        if (problems.length > 0) {
+          console.warn(`Chat : ${problems.length} problème(s)\n${problems.join("\n")}`);
+        }
+      })
       : null;
     return () => {
       task?.cancel();
@@ -132,6 +132,16 @@ export default function Chat() {
     setSuggestions(copy.suggestions);
     setMessages([welcome(user?.firstName, mode)]);
   };
+
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
 
   const onAction = useCallback(
     (action: ChatAction) => {
@@ -241,9 +251,8 @@ export default function Chat() {
             disabled={!canSend}
             accessibilityRole="button"
             accessibilityLabel="Envoyer"
-            className={`h-11 w-11 items-center justify-center rounded-full ${
-              canSend ? "bg-primary dark:bg-primary-dark" : "bg-primary-soft dark:bg-primary-soft-dark"
-            }`}
+            className={`h-11 w-11 items-center justify-center rounded-full ${canSend ? "bg-primary dark:bg-primary-dark" : "bg-primary-soft dark:bg-primary-soft-dark"
+              }`}
           >
             <Send size={20} color={canSend ? colors.onPrimary : colors.inkSoft} />
           </Pressable>

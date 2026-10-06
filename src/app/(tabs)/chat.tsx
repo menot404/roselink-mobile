@@ -17,8 +17,8 @@ import { useAuth } from "@/context/auth-context";
 import { useAppTheme } from "@/context/theme-context";
 import { ChatBubble, TypingBubble } from "@/features/chat/chat-bubble";
 import { getReply } from "@/features/chat/engine";
-import { START_SUGGESTIONS } from "@/features/chat/knowledge";
-import type { ChatRoute } from "@/features/chat/knowledge/types";
+import { START_SUGGESTIONS, SUPPORT_START_SUGGESTIONS } from "@/features/chat/knowledge";
+import type { ChatAction, ChatMode } from "@/features/chat/knowledge/types";
 import { newId, type ChatMessage } from "@/features/chat/message";
 import { selfCheck } from "@/features/chat/selfcheck";
 import { useKeyboardVisible } from "@/lib/use-keyboard-visible";
@@ -26,15 +26,32 @@ import { useKeyboardVisible } from "@/lib/use-keyboard-visible";
 const keyExtractor = (item: ChatMessage) => item.id;
 const listContent = { padding: 16, gap: 14 } as const;
 
-function welcome(firstName?: string, support?: boolean): ChatMessage {
+const COPY: Record<
+  ChatMode,
+  { banner: string; placeholder: string; suggestions: string[]; welcome: string }
+> = {
+  prevention: {
+    banner: "RoseLink informe et oriente. Elle ne remplace pas un professionnel de santé.",
+    placeholder: "Écrivez votre question…",
+    suggestions: START_SUGGESTIONS,
+    welcome:
+      "je suis l'assistante RoseLink. Je réponds à vos questions sur le sein et le dépistage, sans jugement. Je ne remplace pas un professionnel de santé.",
+  },
+  support: {
+    banner: "RoseLink vous écoute et vous oriente. Elle ne remplace pas votre équipe soignante.",
+    placeholder: "Écrivez ce que vous ressentez…",
+    suggestions: SUPPORT_START_SUGGESTIONS,
+    welcome:
+      "je suis l'assistante RoseLink. Cet espace est le vôtre : vous pouvez me parler de ce que vous ressentez ou me poser vos questions sur le traitement et la vie de tous les jours, sans jugement. Je ne remplace pas votre équipe soignante.",
+  },
+};
+
+function welcome(firstName: string | undefined, mode: ChatMode): ChatMessage {
   const hello = firstName ? `Bonjour ${firstName}` : "Bonjour";
-  const extra = support
-    ? " L'espace d'écoute pour les femmes déjà diagnostiquées arrive bientôt ; en attendant, je peux répondre à vos questions d'information."
-    : "";
   return {
     id: newId(),
     role: "assistant",
-    text: `${hello}, je suis l'assistante RoseLink. Je réponds à vos questions sur le sein et le dépistage, sans jugement. Je ne remplace pas un professionnel de santé.${extra}`,
+    text: `${hello}, ${COPY[mode].welcome}`,
     actions: [],
     sourceIds: [],
     needsReview: false,
@@ -48,19 +65,20 @@ export default function Chat() {
   const { colors } = useAppTheme();
   const keyboardVisible = useKeyboardVisible();
 
+  const mode: ChatMode = user?.profile === "support" ? "support" : "prevention";
+  const copy = COPY[mode];
+
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastIntent = useRef<string | null>(null);
 
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    welcome(user?.firstName, user?.profile === "support"),
-  ]);
-  const [suggestions, setSuggestions] = useState<string[]>(START_SUGGESTIONS);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [welcome(user?.firstName, mode)]);
+  const [suggestions, setSuggestions] = useState<string[]>(copy.suggestions);
   const [typing, setTyping] = useState(false);
   const [draft, setDraft] = useState("");
 
   useEffect(() => {
-    // vérification de la base : en développement seulement, et après l'affichage de l'écran
+    // vérification des bases : en développement seulement, et après l'affichage de l'écran
     const task = __DEV__
       ? InteractionManager.runAfterInteractions(() => {
           const problems = selfCheck();
@@ -84,7 +102,7 @@ export default function Chat() {
     setMessages((previous) => [...previous, { id: newId(), role: "user", text }]);
     setTyping(true);
 
-    const answer = getReply(text, lastIntent.current);
+    const answer = getReply(text, lastIntent.current, mode);
     lastIntent.current = answer.intentId;
 
     // délai de « réflexion » proportionnel à la longueur de la réponse
@@ -101,7 +119,7 @@ export default function Chat() {
           needsReview: answer.needsReview,
         },
       ]);
-      setSuggestions(answer.followUps.length > 0 ? answer.followUps : START_SUGGESTIONS);
+      setSuggestions(answer.followUps.length > 0 ? answer.followUps : copy.suggestions);
       setTyping(false);
     }, delay);
   };
@@ -111,11 +129,19 @@ export default function Chat() {
     lastIntent.current = null;
     setTyping(false);
     setDraft("");
-    setSuggestions(START_SUGGESTIONS);
-    setMessages([welcome(user?.firstName, user?.profile === "support")]);
+    setSuggestions(copy.suggestions);
+    setMessages([welcome(user?.firstName, mode)]);
   };
 
-  const onAction = useCallback((href: ChatRoute) => router.push(href), [router]);
+  const onAction = useCallback(
+    (action: ChatAction) => {
+      const target = action.params
+        ? { pathname: action.href, params: action.params }
+        : action.href;
+      router.push(target as Parameters<typeof router.push>[0]);
+    },
+    [router],
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: ChatMessage }) => <ChatBubble message={item} onAction={onAction} />,
@@ -156,7 +182,7 @@ export default function Chat() {
       <View className="flex-row items-center gap-3 border-b border-line px-4 py-2 dark:border-line-dark">
         <Info size={18} color={colors.primary} />
         <Text className="flex-1 font-jakarta text-xs leading-4 text-ink-soft dark:text-ink-soft-dark">
-          RoseLink informe et oriente. Elle ne remplace pas un professionnel de santé.
+          {copy.banner}
         </Text>
         <Pressable
           onPress={reset}
@@ -193,12 +219,12 @@ export default function Chat() {
           <TextInput
             value={draft}
             onChangeText={setDraft}
-            placeholder="Écrivez votre question…"
+            placeholder={copy.placeholder}
             placeholderTextColor={colors.inkSoft}
             selectionColor={colors.primary}
             multiline
             maxLength={400}
-            accessibilityLabel="Votre question"
+            accessibilityLabel="Votre message"
             style={{
               flex: 1,
               minHeight: 40,

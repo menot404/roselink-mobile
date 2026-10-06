@@ -2,6 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { ArrowRight, Heart, Info } from "lucide-react-native";
 import { memo } from "react";
 import { Pressable, Text, View } from "react-native";
+import type { ChatAction } from "./knowledge/types";
 
 import { SourceLinks } from "@/components/ui/source-links";
 import { useAppTheme } from "@/context/theme-context";
@@ -42,7 +43,7 @@ export function TypingBubble() {
   );
 }
 
-type Props = { message: ChatMessage; onAction: (href: ChatRoute) => void };
+type Props = { message: ChatMessage; onAction: (action: ChatAction) => void };
 
 /** Mémorisé : une bulle n'est redessinée que si son message change. */
 export const ChatBubble = memo(function ChatBubble({ message, onAction }: Props) {
@@ -78,7 +79,7 @@ export const ChatBubble = memo(function ChatBubble({ message, onAction }: Props)
             {message.actions.map((action) => (
               <Pressable
                 key={action.label}
-                onPress={() => onAction(action.href)}
+                onPress={() => onAction(action)}
                 accessibilityRole="button"
                 accessibilityLabel={action.label}
                 className="min-h-11 flex-row items-center gap-2 rounded-full bg-primary-soft px-4 active:opacity-80 dark:bg-primary-soft-dark"

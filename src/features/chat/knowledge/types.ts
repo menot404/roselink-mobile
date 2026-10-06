@@ -13,7 +13,15 @@ export type SourceId =
   | "quotidien"
   | "burkina24-or"
   | "burkina24-mt"
-  | "minute-mt";
+  | "minute-mt"
+  | "icm"
+  | "gustave-roussy"
+  | "chuv"
+  | "cusm"
+  | "hug"
+  | "ciusss"
+  | "inca-image"
+  | "inca-recon";
 
 export type Source = {
   id: SourceId;
@@ -35,8 +43,12 @@ export type ChatRoute =
   | "/connaitre"
   | "/mythes"
   | "/audio";
-export type ChatAction = { label: string; href: ChatRoute };
-
+export type ChatAction = {
+  label: string;
+  href: ChatRoute;
+  /** Paramètres de la page, par exemple { id: "respiration-fr" } */
+  params?: Record<string, string>;
+};
 export type Intent = {
   id: string;
   /** Mots-clés : "mot", "plusieurs mots" (expression exacte) ou "racine*" (début de mot) */
@@ -52,6 +64,8 @@ export type Intent = {
   priority?: number;
 };
 
+/** Deux espaces de discussion : prévention et accompagnement */
+export type ChatMode = "prevention" | "support";
 export type ChatReply = {
   intentId: string | null;
   text: string;

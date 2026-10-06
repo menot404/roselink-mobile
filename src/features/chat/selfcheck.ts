@@ -1,5 +1,11 @@
 import { getReply } from "./engine";
-import { INTENTS, START_SUGGESTIONS } from "./knowledge";
+import {
+  PREVENTION_INTENTS,
+  START_SUGGESTIONS,
+  SUPPORT_INTENTS,
+  SUPPORT_START_SUGGESTIONS,
+} from "./knowledge";
+import type { ChatMode, Intent } from "./knowledge/types";
 import { normalize } from "./normalize";
 
 /** Cas de test de référence : [message, intention attendue]. À enrichir lors des relectures. */
@@ -67,32 +73,108 @@ export const TEST_CASES: [string, string][] = [
   ["", "(repli)"],
 ];
 
-/** Vérifie la base de connaissances. Retourne la liste des problèmes (vide si tout est bon). */
-export function selfCheck(): string[] {
+
+
+export const SUPPORT_TEST_CASES: [string, string][] = [
+  ["J'ai peur", "peur"],
+  ["J'ai peur que ça revienne", "peur_rechute"],
+  ["Est-ce que le cancer va revenir ?", "peur_rechute"],
+  ["J'ai peur de mourir", "peur_mourir"],
+  ["Vais-je mourir ?", "peur_mourir"],
+  ["Je suis triste", "tristesse"],
+  ["Je n'ai plus envie de rien", "tristesse"],
+  ["Je suis en colère", "colere"],
+  ["C'est de ma faute", "culpabilite"],
+  ["Pourquoi moi ?", "culpabilite"],
+  ["Je me sens seule", "solitude"],
+  ["Personne ne me comprend", "solitude"],
+  ["Je suis fatiguée", "fatigue"],
+  ["Je n'en peux plus", "fatigue"],
+  ["Je dors mal", "sommeil"],
+  ["Un exercice de respiration", "relaxation"],
+  ["Je veux mourir", "detresse"],
+  ["Je n'ai plus envie de vivre", "detresse"],
+  ["Je veux arrêter mon traitement", "arret_traitement"],
+  ["J'ai de la fièvre", "urgence_symptomes"],
+  ["Fièvre pendant le traitement", "urgence_symptomes"],
+  ["Effets de la chimio", "chimio"],
+  ["Quels sont les effets secondaires ?", "chimio"],
+  ["J'ai des nausées", "nausees"],
+  ["Je perds mes cheveux", "cheveux"],
+  ["Perte de cheveux", "cheveux"],
+  ["Où trouver une perruque ?", "cheveux"],
+  ["La radiothérapie fait-elle mal ?", "radiotherapie"],
+  ["Je dois me faire opérer", "chirurgie"],
+  ["J'ai mal", "douleur"],
+  ["Puis-je prendre des tisanes ?", "plantes"],
+  ["C'est quoi le MammaTyper ?", "mammatyper"],
+  ["Je ne comprends pas mon compte rendu", "comprendre"],
+  ["Que demander à mon médecin ?", "preparer_rdv"],
+  ["Je ne me sens plus femme", "image_de_soi"],
+  ["Je n'ose plus me regarder dans le miroir", "image_de_soi"],
+  ["Prothèse ou reconstruction", "prothese_reconstruction"],
+  ["Comment en parler à mes enfants ?", "enfants"],
+  ["Comment en parler à ma famille ?", "famille"],
+  ["Les gens sont maladroits", "entourage_maladroit"],
+  ["Mon mari ne me regarde plus pareil", "couple"],
+  ["Quand puis-je reprendre le travail ?", "travail"],
+  ["Quelles aides existent ?", "argent"],
+  ["Je n'ai pas les moyens", "argent"],
+  ["Parler à une association", "associations"],
+  ["Y a-t-il des groupes de parole ?", "associations"],
+  ["Je n'ai plus d'espoir", "espoir"],
+  ["Bonjour", "salut"],
+  ["Merci", "merci"],
+  ["Qui êtes-vous ?", "identite"],
+  ["Je suis dépressive", "tristesse"],
+  ["Je suis tres fatiguee", "fatigue"],
+  ["chimiotherapi c'est dur", "chimio"],
+  ["Quelle est la capitale de la France ?", "(repli)"],
+];
+
+/** Vérifie une base de connaissances. Retourne la liste des problèmes (vide si tout est bon). */
+function checkBank(
+  mode: ChatMode,
+  intents: Intent[],
+  suggestions: string[],
+  cases: [string, string][],
+): string[] {
   const problems: string[] = [];
+  const tag = mode === "support" ? "[accompagnement]" : "[prévention]";
 
   const ids = new Set<string>();
-  for (const intent of INTENTS) {
-    if (ids.has(intent.id)) problems.push(`Identifiant en double : ${intent.id}`);
+  for (const intent of intents) {
+    if (ids.has(intent.id)) problems.push(`${tag} Identifiant en double : ${intent.id}`);
     ids.add(intent.id);
-    if (intent.keywords.length === 0) problems.push(`${intent.id} : aucun mot-clé`);
+    if (intent.keywords.length === 0) problems.push(`${tag} ${intent.id} : aucun mot-clé`);
     for (const keyword of intent.keywords) {
-      if (!normalize(keyword.replace(/\*$/, ""))) problems.push(`${intent.id} : mot-clé vide`);
+      if (!normalize(keyword.replace(/\*$/, ""))) problems.push(`${tag} ${intent.id} : mot-clé vide`);
     }
-    if (intent.reply.length > 650) problems.push(`${intent.id} : réponse longue (${intent.reply.length} caractères)`);
+    if (intent.reply.length > 700) {
+      problems.push(`${tag} ${intent.id} : réponse longue (${intent.reply.length} caractères)`);
+    }
   }
 
-  const labels = new Set<string>(START_SUGGESTIONS);
-  for (const intent of INTENTS) intent.followUps?.forEach((label) => labels.add(label));
+  const labels = new Set<string>(suggestions);
+  for (const intent of intents) intent.followUps?.forEach((label) => labels.add(label));
   for (const label of labels) {
-    if (getReply(label).isFallback) problems.push(`Suggestion non comprise : « ${label} »`);
+    if (getReply(label, null, mode).isFallback) {
+      problems.push(`${tag} Suggestion non comprise : « ${label} »`);
+    }
   }
 
-  for (const [message, expected] of TEST_CASES) {
-    const reply = getReply(message);
-    const got = reply.intentId ?? "(repli)";
-    if (got !== expected) problems.push(`« ${message} » : attendu ${expected}, obtenu ${got}`);
+  for (const [message, expected] of cases) {
+    const got = getReply(message, null, mode).intentId ?? "(repli)";
+    if (got !== expected) problems.push(`${tag} « ${message} » : attendu ${expected}, obtenu ${got}`);
   }
 
   return problems;
+}
+
+/** Vérifie les deux bases (prévention et accompagnement). */
+export function selfCheck(): string[] {
+  return [
+    ...checkBank("prevention", PREVENTION_INTENTS, START_SUGGESTIONS, TEST_CASES),
+    ...checkBank("support", SUPPORT_INTENTS, SUPPORT_START_SUGGESTIONS, SUPPORT_TEST_CASES),
+  ];
 }

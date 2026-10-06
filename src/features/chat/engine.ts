@@ -1,5 +1,5 @@
-import { INTENTS } from "./knowledge";
-import type { ChatReply, Intent } from "./knowledge/types";
+import { PREVENTION_INTENTS, SUPPORT_INTENTS } from "./knowledge";
+import type { ChatMode, ChatReply, Intent } from "./knowledge/types";
 import { editDistance, normalize } from "./normalize";
 
 type Matcher = { kind: "phrase" | "word" | "prefix"; value: string; weight: number };
@@ -16,8 +16,6 @@ const compile = (intent: Intent): Compiled => ({
     return { kind: "word", value, weight: 2 };
   }),
 });
-
-const COMPILED = INTENTS.map(compile);
 
 function score({ matchers }: Compiled, text: string, tokens: string[]): number {
   const padded = ` ${text} `;
@@ -54,14 +52,25 @@ const toReply = (intent: Intent): ChatReply => ({
   isFallback: false,
 });
 
-export const FALLBACK_REPLY: ChatReply = {
-  intentId: null,
-  text: "Je ne suis pas sûre de bien comprendre. Je ne remplace pas un professionnel de santé, mais je peux vous parler des signes à connaître, du dépistage, des centres et de la gratuité au Burkina Faso. Pouvez-vous reformuler ?",
-  actions: [],
-  followUps: [],
-  sourceIds: [],
-  needsReview: false,
-  isFallback: true,
+const FALLBACKS: Record<ChatMode, ChatReply> = {
+  prevention: {
+    intentId: null,
+    text: "Je ne suis pas sûre de bien comprendre. Je ne remplace pas un professionnel de santé, mais je peux vous parler des signes à connaître, du dépistage, des centres et de la gratuité au Burkina Faso. Pouvez-vous reformuler ?",
+    actions: [],
+    followUps: [],
+    sourceIds: [],
+    needsReview: false,
+    isFallback: true,
+  },
+  support: {
+    intentId: null,
+    text: "Je ne suis pas sûre de bien comprendre, mais je suis là pour vous écouter. Voulez-vous m'en dire un peu plus ? Je ne remplace pas votre équipe soignante, mais je peux vous orienter.",
+    actions: [],
+    followUps: [],
+    sourceIds: [],
+    needsReview: false,
+    isFallback: true,
+  },
 };
 
 const CONFIRMATIONS = new Set([
@@ -77,14 +86,30 @@ const CONFIRMATIONS = new Set([
   "svp",
 ]);
 
-/** Cherche la meilleure réponse. `lastIntentId` permet de comprendre un simple « oui ». */
-export function getReply(message: string, lastIntentId: string | null = null): ChatReply {
+const BANKS: Record<ChatMode, { intents: Intent[]; compiled: Compiled[] }> = {
+  prevention: { intents: PREVENTION_INTENTS, compiled: PREVENTION_INTENTS.map(compile) },
+  support: { intents: SUPPORT_INTENTS, compiled: SUPPORT_INTENTS.map(compile) },
+};
+
+export const FALLBACK_REPLY = FALLBACKS.prevention;
+
+/**
+ * Cherche la meilleure réponse dans la base du mode choisi.
+ * `lastIntentId` permet de comprendre un simple « oui ».
+ */
+export function getReply(
+  message: string,
+  lastIntentId: string | null = null,
+  mode: ChatMode = "prevention",
+): ChatReply {
+  const bank = BANKS[mode];
+  const fallback = FALLBACKS[mode];
   const text = normalize(message);
-  if (!text) return FALLBACK_REPLY;
+  if (!text) return fallback;
   const tokens = text.split(" ");
 
   if (CONFIRMATIONS.has(text) && lastIntentId) {
-    const last = INTENTS.find((intent) => intent.id === lastIntentId);
+    const last = bank.intents.find((intent) => intent.id === lastIntentId);
     if (last?.followUps?.length) {
       return {
         intentId: "suite",
@@ -99,7 +124,7 @@ export function getReply(message: string, lastIntentId: string | null = null): C
   }
 
   let best: { intent: Intent; score: number } | null = null;
-  for (const compiled of COMPILED) {
+  for (const compiled of bank.compiled) {
     const value = score(compiled, text, tokens);
     if (value === 0) continue;
     const priority = compiled.intent.priority ?? 0;
@@ -109,5 +134,5 @@ export function getReply(message: string, lastIntentId: string | null = null): C
     }
   }
 
-  return best && best.score >= 2 ? toReply(best.intent) : FALLBACK_REPLY;
+  return best && best.score >= 2 ? toReply(best.intent) : fallback;
 }

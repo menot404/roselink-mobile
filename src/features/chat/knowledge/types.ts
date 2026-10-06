@@ -42,7 +42,12 @@ export type ChatRoute =
   | "/parcours"
   | "/connaitre"
   | "/mythes"
-  | "/audio";
+  | "/audio"
+  | "/humeur"
+  | "/respiration"
+  | "/histoires"
+  | "/reconstruction";
+
 export type ChatAction = {
   label: string;
   href: ChatRoute;

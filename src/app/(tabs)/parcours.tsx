@@ -18,7 +18,17 @@ import { HubCard } from "@/components/ui/hub-card";
 import { Screen } from "@/components/ui/screen";
 import { useAuth } from "@/context/auth-context";
 
-type Href = "/signes" | "/connaitre" | "/mythes" | "/audio";
+type Href =
+  | "/signes"
+  | "/connaitre"
+  | "/mythes"
+  | "/audio"
+  | "/humeur"
+  | "/respiration"
+  | "/histoires"
+  | "/reconstruction";
+
+
 type Entry = { title: string; subtitle: string; icon: LucideIcon; href?: Href };
 
 const PREVENTION: Entry[] = [
@@ -49,17 +59,29 @@ const PREVENTION: Entry[] = [
 ];
 
 const SUPPORT: Entry[] = [
-  { title: "Journal d'humeur", subtitle: "Suivre vos émotions au quotidien.", icon: PenLine },
-  { title: "Respiration et détente", subtitle: "Des exercices guidés de 5 minutes.", icon: Wind },
+  {
+    title: "Journal d'humeur",
+    subtitle: "Suivre vos émotions au quotidien.",
+    icon: PenLine,
+    href: "/humeur",
+  },
+  {
+    title: "Respiration et détente",
+    subtitle: "Un exercice guidé de quelques minutes.",
+    icon: Wind,
+    href: "/respiration",
+  },
   {
     title: "Histoires de femmes",
     subtitle: "Des témoignages pour se sentir moins seule.",
     icon: Quote,
+    href: "/histoires",
   },
   {
     title: "Reconstruction et image de soi",
     subtitle: "Informations et conseils.",
     icon: Sparkles,
+    href: "/reconstruction",
   },
 ];
 

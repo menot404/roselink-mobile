@@ -69,6 +69,10 @@ function RootNavigator() {
           <Stack.Screen name="audio" options={{ headerShown: true, title: "Conseils en audio" }} />
           <Stack.Screen name="don" options={{ headerShown: true, title: "Faire un don" }} />
           <Stack.Screen name="aide" options={{ headerShown: true, title: "Aide et solidarité" }} />
+          <Stack.Screen name="humeur" options={{ headerShown: true, title: "Journal d'humeur" }} />
+          <Stack.Screen name="respiration" options={{ headerShown: true, title: "Respiration" }} />
+          <Stack.Screen name="histoires" options={{ headerShown: true, title: "Histoires de femmes" }} />
+          <Stack.Screen name="reconstruction" options={{ headerShown: true, title: "Reconstruction" }} />
         </Stack.Protected>
       </Stack>
     </NavigationThemeProvider>

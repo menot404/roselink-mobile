@@ -40,7 +40,8 @@
           "locationWhenInUsePermission": "RoseLink utilise votre position, uniquement sur votre téléphone, pour trouver les centres de dépistage les plus proches."
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

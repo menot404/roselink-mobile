@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { Heart } from "lucide-react-native";
 import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { QuickExitButton } from "@/features/discret/quick-exit-button";
 
 import { useAuth } from "@/context/auth-context";
 import { useAppTheme } from "@/context/theme-context";
@@ -49,16 +50,19 @@ export function TopBar() {
           </Text>
         </Pressable>
 
-        <Pressable
-          onPress={() => router.push("/profil")}
-          accessibilityRole="button"
-          accessibilityLabel="Mon profil et réglages"
-          className="h-11 w-11 items-center justify-center rounded-full border border-primary bg-primary-soft active:opacity-80 dark:border-primary-dark dark:bg-primary-soft-dark"
-        >
-          <Text className="font-jakarta-bold text-base text-primary dark:text-primary-dark">
-            {initial}
-          </Text>
-        </Pressable>
+        <View className="flex-row items-center gap-2">
+          <QuickExitButton />
+          <Pressable
+            onPress={() => router.push("/profil")}
+            accessibilityRole="button"
+            accessibilityLabel="Mon profil et réglages"
+            className="h-11 w-11 items-center justify-center rounded-full border border-primary bg-primary-soft active:opacity-80 dark:border-primary-dark dark:bg-primary-soft-dark"
+          >
+            <Text className="font-jakarta-bold text-base text-primary dark:text-primary-dark">
+              {initial}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );

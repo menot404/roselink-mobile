@@ -15,6 +15,8 @@ import {
 } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { DiscreetProvider } from "@/features/discret/discreet-provider";
+import { QuickExitButton } from "@/features/discret/quick-exit-button";
 
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { AuthProvider, useAuth } from "@/context/auth-context";
@@ -45,36 +47,41 @@ function RootNavigator() {
     <NavigationThemeProvider value={navigationTheme}>
       <StatusBar style={scheme === "dark" ? "light" : "dark"} />
       <AnimatedSplashOverlay />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          headerShadowVisible: false,
-          headerTitleStyle: { fontFamily: "PlusJakartaSans_700Bold" },
-        }}
-      >
-        <Stack.Screen name="index" />
+      <DiscreetProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            headerShadowVisible: false,
+            headerTitleStyle: { fontFamily: "PlusJakartaSans_700Bold" },
+            headerRight: () => <QuickExitButton />,
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="neutre" />
 
-        <Stack.Protected guard={!isSignedIn}>
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="connexion" options={{ headerShown: true, title: "Connexion" }} />
-          <Stack.Screen name="inscription" options={{ headerShown: true, title: "Créer mon compte" }} />
-        </Stack.Protected>
+          <Stack.Protected guard={!isSignedIn}>
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="connexion" options={{ headerShown: true, title: "Connexion" }} />
+            <Stack.Screen name="inscription" options={{ headerShown: true, title: "Créer mon compte" }} />
+          </Stack.Protected>
 
-        <Stack.Protected guard={isSignedIn}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="profil" options={{ headerShown: true, title: "Mon profil" }} />
-          <Stack.Screen name="signes" options={{ headerShown: true, title: "Signes d'alerte" }} />
-          <Stack.Screen name="connaitre" options={{ headerShown: true, title: "Connaître ses seins" }} />
-          <Stack.Screen name="mythes" options={{ headerShown: true, title: "Mythes ou réalités" }} />
-          <Stack.Screen name="audio" options={{ headerShown: true, title: "Conseils en audio" }} />
-          <Stack.Screen name="don" options={{ headerShown: true, title: "Faire un don" }} />
-          <Stack.Screen name="aide" options={{ headerShown: true, title: "Aide et solidarité" }} />
-          <Stack.Screen name="humeur" options={{ headerShown: true, title: "Journal d'humeur" }} />
-          <Stack.Screen name="respiration" options={{ headerShown: true, title: "Respiration" }} />
-          <Stack.Screen name="histoires" options={{ headerShown: true, title: "Histoires de femmes" }} />
-          <Stack.Screen name="reconstruction" options={{ headerShown: true, title: "Reconstruction" }} />
-        </Stack.Protected>
-      </Stack>
+          <Stack.Protected guard={isSignedIn}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="profil" options={{ headerShown: true, title: "Mon profil" }} />
+            <Stack.Screen name="signes" options={{ headerShown: true, title: "Signes d'alerte" }} />
+            <Stack.Screen name="connaitre" options={{ headerShown: true, title: "Connaître ses seins" }} />
+            <Stack.Screen name="mythes" options={{ headerShown: true, title: "Mythes ou réalités" }} />
+            <Stack.Screen name="audio" options={{ headerShown: true, title: "Conseils en audio" }} />
+            <Stack.Screen name="don" options={{ headerShown: true, title: "Faire un don" }} />
+            <Stack.Screen name="aide" options={{ headerShown: true, title: "Aide et solidarité" }} />
+            <Stack.Screen name="humeur" options={{ headerShown: true, title: "Journal d'humeur" }} />
+            <Stack.Screen name="respiration" options={{ headerShown: true, title: "Respiration" }} />
+            <Stack.Screen name="histoires" options={{ headerShown: true, title: "Histoires de femmes" }} />
+            <Stack.Screen name="reconstruction" options={{ headerShown: true, title: "Reconstruction" }} />
+            <Stack.Screen name="discret" options={{ headerShown: true, title: "Mode discret" }} />
+          </Stack.Protected>
+        </Stack>
+      </DiscreetProvider>
     </NavigationThemeProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
-import { LogOut, Trash2 } from "lucide-react-native";
+import { LogOut, Trash2, EyeOff } from "lucide-react-native";
 import { Alert, Text, View } from "react-native";
+import { useDiscreet } from "@/features/discret/discreet-context";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,7 +24,9 @@ import {
 function InfoRow({ label, value }: { label: string; value?: string }) {
   return (
     <View className="flex-row items-center justify-between gap-3 py-2">
-      <Text className="font-jakarta text-sm text-ink-soft dark:text-ink-soft-dark">{label}</Text>
+      <Text className="font-jakarta text-sm text-ink-soft dark:text-ink-soft-dark">
+        {label}
+      </Text>
       <Text className="flex-1 text-right font-jakarta-semibold text-sm text-ink dark:text-ink-dark">
         {value || "Non renseigné"}
       </Text>
@@ -46,6 +49,7 @@ export default function Profil() {
   const router = useRouter();
   const { user, signOut, updateAccount, deleteAccount } = useAuth();
   const { preference, systemScheme } = useAppTheme();
+  const { eraseAll } = useDiscreet();
 
   if (!user) return null;
 
@@ -53,17 +57,21 @@ export default function Profil() {
   const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
 
   const confirmSignOut = () => {
-    Alert.alert("Se déconnecter ?", "Tu pourras te reconnecter à tout moment.", [
-      { text: "Annuler", style: "cancel" },
-      {
-        text: "Se déconnecter",
-        style: "destructive",
-        onPress: async () => {
-          await signOut();
-          router.replace("/");
+    Alert.alert(
+      "Se déconnecter ?",
+      "Tu pourras te reconnecter à tout moment.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Se déconnecter",
+          style: "destructive",
+          onPress: async () => {
+            await signOut();
+            router.replace("/");
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const confirmDelete = () => {
@@ -75,10 +83,6 @@ export default function Profil() {
         {
           text: "Effacer",
           style: "destructive",
-          onPress: async () => {
-            await deleteAccount();
-            router.replace("/");
-          },
         },
       ],
     );
@@ -93,7 +97,9 @@ export default function Profil() {
           </Text>
         </View>
         <View className="items-center gap-1">
-          <Text className="font-jakarta-bold text-xl text-ink dark:text-ink-dark">{fullName}</Text>
+          <Text className="font-jakarta-bold text-xl text-ink dark:text-ink-dark">
+            {fullName}
+          </Text>
           <Text className="font-jakarta text-sm text-ink-soft dark:text-ink-soft-dark">
             {user.identifier}
           </Text>
@@ -115,6 +121,23 @@ export default function Profil() {
           onChange={(value) => void updateAccount({ profile: value })}
         />
       </Card>
+
+      <Card className="gap-3">
+        <Text className="font-jakarta-semibold text-base text-ink dark:text-ink-dark">
+          Mode discret
+        </Text>
+        <Text className="font-jakarta text-xs leading-4 text-ink-soft dark:text-ink-soft-dark">
+          Code PIN, bouton « Quitter vite » et notifications qui ne révèlent
+          rien.
+        </Text>
+        <Button
+          label="Régler la discrétion"
+          icon={EyeOff}
+          variant="secondary"
+          onPress={() => router.push("/discret")}
+        />
+      </Card>
+
       <Card className="gap-3">
         <Text className="font-jakarta-semibold text-base text-ink dark:text-ink-dark">
           Apparence
@@ -138,28 +161,50 @@ export default function Profil() {
 
       <SectionLabel>Mes informations</SectionLabel>
       <Card className="gap-1">
-        <InfoRow label="Tranche d'âge" value={labelOf(AGE_OPTIONS, user.ageRange)} />
+        <InfoRow
+          label="Tranche d'âge"
+          value={labelOf(AGE_OPTIONS, user.ageRange)}
+        />
         <InfoRow label="Ville" value={user.city} />
-        <InfoRow label="Langue" value={labelOf(LANGUAGE_OPTIONS, user.language)} />
+        <InfoRow
+          label="Langue"
+          value={labelOf(LANGUAGE_OPTIONS, user.language)}
+        />
         {user.profile === "support" ? (
           <InfoRow label="Stade" value={labelOf(STAGE_OPTIONS, user.stage)} />
         ) : (
-          <InfoRow label="Dépistage" value={labelOf(SCREENING_OPTIONS, user.screening)} />
+          <InfoRow
+            label="Dépistage"
+            value={labelOf(SCREENING_OPTIONS, user.screening)}
+          />
         )}
-        <InfoRow label="Antécédents familiaux" value={labelOf(FAMILY_OPTIONS, user.familyHistory)} />
+        <InfoRow
+          label="Antécédents familiaux"
+          value={labelOf(FAMILY_OPTIONS, user.familyHistory)}
+        />
       </Card>
 
       <SectionLabel>Confidentialité</SectionLabel>
       <Card className="gap-3">
         <Text className="font-jakarta text-sm leading-5 text-ink-soft dark:text-ink-soft-dark">
-          Tes informations restent sur ce téléphone. Rien n'est envoyé ailleurs dans cette version
-          de démonstration.
+          Tes informations restent sur ce téléphone. Rien n'est envoyé ailleurs
+          dans cette version de démonstration.
         </Text>
-        <Button label="Effacer mes données" icon={Trash2} variant="danger" onPress={confirmDelete} />
+        <Button
+          label="Effacer mes données"
+          icon={Trash2}
+          variant="danger"
+          onPress={confirmDelete}
+        />
       </Card>
 
       <Disclaimer />
-      <Button label="Se déconnecter" icon={LogOut} variant="secondary" onPress={confirmSignOut} />
+      <Button
+        label="Se déconnecter"
+        icon={LogOut}
+        variant="secondary"
+        onPress={confirmSignOut}
+      />
     </Screen>
   );
 }

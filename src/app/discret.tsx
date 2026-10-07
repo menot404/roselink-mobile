@@ -1,13 +1,17 @@
-import { EyeOff, KeyRound } from "lucide-react-native";
+import { EyeOff, KeyRound, Fingerprint } from "lucide-react-native";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Alert, Linking, Text, View } from "react-native";
+import { useBiometrics } from "@/features/discret/use-biometrics";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Disclaimer } from "@/components/ui/disclaimer";
 import { Screen } from "@/components/ui/screen";
 import { ToggleRow } from "@/components/ui/toggle-row";
-import { useDiscreet, type VerifyResult } from "@/features/discret/discreet-context";
+import {
+  useDiscreet,
+  type VerifyResult,
+} from "@/features/discret/discreet-context";
 import { notificationText } from "@/features/discret/notification-texts";
 import { isWeakPin } from "@/features/discret/pin";
 import { PinPad } from "@/features/discret/pin-pad";
@@ -24,13 +28,47 @@ const TITLES: Record<Exclude<Mode, "idle">, string> = {
 
 function describeFailure(result: VerifyResult): string {
   if (result.ok) return "";
-  if (result.reason === "locked") return `Trop d'essais. Réessayez dans ${result.seconds} s.`;
+  if (result.reason === "locked")
+    return `Trop d'essais. Réessayez dans ${result.seconds} s.`;
   return `Code incorrect. ${result.attemptsLeft} essai${result.attemptsLeft > 1 ? "s" : ""} avant un blocage temporaire.`;
 }
 
 export default function Discret() {
-  const { settings, hasPin, updateSettings, setPin: savePin, verifyPin, removePin } = useDiscreet();
+  const {
+    settings,
+    hasPin,
+    updateSettings,
+    setPin: savePin,
+    verifyPin,
+    removePin,
+  } = useDiscreet();
   const quickExit = useQuickExit();
+  const biometrics = useBiometrics();
+
+  const enableBiometrics = async () => {
+    const ok = await biometrics.authenticate(
+      "Confirmez pour activer le déverrouillage",
+    );
+    if (ok) {
+      await updateSettings({ biometric: true });
+      setSuccess(`Le déverrouillage avec ${biometrics.info.name} est activé.`);
+    } else {
+      setSuccess("");
+      setError(
+        "La reconnaissance n'a pas abouti. Vous pouvez réessayer depuis cet écran.",
+      );
+    }
+  };
+
+  const proposeBiometrics = () =>
+    Alert.alert(
+      `Déverrouiller avec ${biometrics.info.name} ?`,
+      "C'est plus rapide et discret. Votre code reste disponible à tout moment.",
+      [
+        { text: "Plus tard", style: "cancel" },
+        { text: "Activer", onPress: () => void enableBiometrics() },
+      ],
+    );
 
   const [mode, setMode] = useState<Mode>("idle");
   const [pin, setPin] = useState("");
@@ -54,7 +92,10 @@ export default function Discret() {
 
     if (mode === "verify-change" || mode === "verify-remove") {
       setBusy(true);
-      const result = mode === "verify-change" ? await verifyPin(value) : await removePin(value);
+      const result =
+        mode === "verify-change"
+          ? await verifyPin(value)
+          : await removePin(value);
       setBusy(false);
       setPin("");
       if (!result.ok) {
@@ -95,6 +136,7 @@ export default function Discret() {
       setBusy(false);
       start("idle");
       setSuccess("Votre code est activé. Il sera demandé à chaque ouverture.");
+      if (biometrics.available) proposeBiometrics();
     }
   };
 
@@ -103,17 +145,20 @@ export default function Discret() {
   return (
     <Screen padTop={false}>
       <Text className="font-jakarta text-base leading-6 text-ink-soft dark:text-ink-soft-dark">
-        Protégez votre vie privée : un code, un bouton pour quitter vite, et des notifications qui ne
-        révèlent rien.
+        Protégez votre vie privée : un code, un bouton pour quitter vite, et des
+        notifications qui ne révèlent rien.
       </Text>
 
       <Card className="gap-4">
         <View className="flex-row items-center justify-between gap-3">
-          <Text className="font-jakarta-bold text-lg text-ink dark:text-ink-dark">Code PIN</Text>
+          <Text className="font-jakarta-bold text-lg text-ink dark:text-ink-dark">
+            Code PIN
+          </Text>
           <Text
-            className={`font-jakarta-semibold text-sm ${
-              hasPin ? "text-success dark:text-success-dark" : "text-ink-soft dark:text-ink-soft-dark"
-            }`}
+            className={`font-jakarta-semibold text-sm ${hasPin
+              ? "text-success dark:text-success-dark"
+              : "text-ink-soft dark:text-ink-soft-dark"
+              }`}
           >
             {hasPin ? "Activé" : "Désactivé"}
           </Text>
@@ -122,8 +167,8 @@ export default function Discret() {
         {mode === "idle" ? (
           <View className="gap-3">
             <Text className="font-jakarta text-sm leading-5 text-ink-soft dark:text-ink-soft-dark">
-              Le code est demandé à l'ouverture, et quand vous revenez dans l'application après
-              quelques instants.
+              Le code est demandé à l'ouverture, et quand vous revenez dans
+              l'application après quelques instants.
             </Text>
             {hasPin ? (
               <>
@@ -140,7 +185,11 @@ export default function Discret() {
                 />
               </>
             ) : (
-              <Button label="Créer un code" icon={KeyRound} onPress={() => start("new")} />
+              <Button
+                label="Créer un code"
+                icon={KeyRound}
+                onPress={() => start("new")}
+              />
             )}
             {success ? (
               <Text
@@ -159,7 +208,12 @@ export default function Discret() {
             >
               {TITLES[mode]}
             </Text>
-            <PinPad value={pin} onChange={setPin} onComplete={onComplete} disabled={busy} />
+            <PinPad
+              value={pin}
+              onChange={setPin}
+              onComplete={onComplete}
+              disabled={busy}
+            />
             <Text
               accessibilityLiveRegion="polite"
               style={{ minHeight: 20 }}
@@ -172,6 +226,45 @@ export default function Discret() {
         )}
       </Card>
 
+      {biometrics.checked && hasPin ? (
+        <Card className="gap-3">
+          {biometrics.available ? (
+            <ToggleRow
+              label={`Déverrouiller avec ${biometrics.info.name}`}
+              description="Votre code reste toujours disponible en secours."
+              value={settings.biometric}
+              onValueChange={(value) => {
+                if (value) void enableBiometrics();
+                else void updateSettings({ biometric: false });
+              }}
+            />
+          ) : biometrics.hasHardware ? (
+            <View className="gap-3">
+              <View className="flex-row items-center gap-2">
+                <Fingerprint size={20} color="#B02558" />
+                <Text className="flex-1 font-jakarta-semibold text-base text-ink dark:text-ink-dark">
+                  Empreinte ou visage
+                </Text>
+              </View>
+              <Text className="font-jakarta text-sm leading-5 text-ink-soft dark:text-ink-soft-dark">
+                Aucune empreinte ni aucun visage n'est enregistré sur ce téléphone. Ajoutez-en dans les
+                réglages du téléphone pour déverrouiller RoseLink plus vite.
+              </Text>
+              <Button
+                label="Ouvrir les réglages du téléphone"
+                variant="secondary"
+                onPress={() => Linking.openSettings().catch(() => { })}
+              />
+            </View>
+          ) : (
+            <Text className="font-jakarta text-sm leading-5 text-ink-soft dark:text-ink-soft-dark">
+              Ce téléphone ne propose pas de déverrouillage par empreinte ou visage : seul votre code est
+              utilisé.
+            </Text>
+          )}
+        </Card>
+      ) : null}
+
       <Card className="gap-4">
         <ToggleRow
           label="Bouton « Quitter vite »"
@@ -180,7 +273,12 @@ export default function Discret() {
           onValueChange={(value) => void updateSettings({ quickExit: value })}
         />
         {settings.quickExit ? (
-          <Button label="Essayer maintenant" icon={EyeOff} variant="secondary" onPress={quickExit} />
+          <Button
+            label="Essayer maintenant"
+            icon={EyeOff}
+            variant="secondary"
+            onPress={quickExit}
+          />
         ) : null}
       </Card>
 
@@ -198,21 +296,30 @@ export default function Discret() {
           label="Notifications discrètes"
           description="Les rappels n'affichent aucun mot lié à la santé."
           value={settings.discreetNotifications}
-          onValueChange={(value) => void updateSettings({ discreetNotifications: value })}
+          onValueChange={(value) =>
+            void updateSettings({ discreetNotifications: value })
+          }
         />
         <View className="gap-1 rounded-2xl bg-primary-soft p-4 dark:bg-primary-soft-dark">
           <Text className="font-jakarta-medium text-xs text-ink-soft dark:text-ink-soft-dark">
             Exemple de rappel
           </Text>
-          <Text className="font-jakarta-bold text-base text-ink dark:text-ink-dark">{sample.title}</Text>
-          <Text className="font-jakarta text-sm text-ink dark:text-ink-dark">{sample.body}</Text>
+          <Text className="font-jakarta-bold text-base text-ink dark:text-ink-dark">
+            {sample.title}
+          </Text>
+          <Text className="font-jakarta text-sm text-ink dark:text-ink-dark">
+            {sample.body}
+          </Text>
         </View>
       </Card>
 
       <Text className="font-jakarta text-xs leading-5 text-ink-soft dark:text-ink-soft-dark">
-        À savoir : le nom et l'icône de RoseLink restent visibles sur le téléphone. Un code à 4
-        chiffres protège contre quelqu'un qui prend votre téléphone quelques minutes, pas contre une
-        attaque informatique. Il n'existe aucun moyen de retrouver un code oublié.
+        À savoir : le nom et l'icône de RoseLink restent visibles sur le
+        téléphone. Un code à 4 chiffres protège contre quelqu'un qui prend votre
+        téléphone quelques minutes, pas contre une attaque informatique. Il
+        n'existe aucun moyen de retrouver un code oublié.
+        Toute empreinte ou tout visage enregistré sur le téléphone peut déverrouiller RoseLink:
+        si quelqu'un d'autre a enregistré les siens, désactivez cette option.
       </Text>
       <Disclaimer />
     </Screen>

@@ -18,6 +18,8 @@ export type DiscreetContextValue = {
   verifyPin: (pin: string) => Promise<VerifyResult>;
   /** Vérifie le code puis déverrouille */
   unlock: (pin: string) => Promise<VerifyResult>;
+  /** Déverrouille après une reconnaissance biométrique réussie */
+  markUnlocked: () => Promise<void>;
   removePin: (currentPin: string) => Promise<VerifyResult>;
   lockNow: () => void;
   /** Efface le code et les réglages de discrétion */

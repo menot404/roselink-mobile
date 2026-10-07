@@ -7,12 +7,15 @@ export type DiscreetSettings = {
   hidePreview: boolean;
   /** Notifications sans aucun mot lié à la santé */
   discreetNotifications: boolean;
+  /** Déverrouillage par empreinte ou visage, en plus du code PIN */
+  biometric: boolean;
 };
 
 export const DEFAULT_SETTINGS: DiscreetSettings = {
   quickExit: false,
   hidePreview: false,
   discreetNotifications: true,
+  biometric: false,
 };
 
 export const SETTINGS_KEY = "roselink.discreet.settings";

@@ -79,9 +79,9 @@ export function DiscreetProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!ready) return;
     if (settings.hidePreview) {
-      ScreenCapture.preventScreenCaptureAsync("roselink").catch(() => {});
+      ScreenCapture.preventScreenCaptureAsync("roselink").catch(() => { });
     } else {
-      ScreenCapture.allowScreenCaptureAsync("roselink").catch(() => {});
+      ScreenCapture.allowScreenCaptureAsync("roselink").catch(() => { });
     }
   }, [ready, settings.hidePreview]);
 
@@ -100,7 +100,7 @@ export function DiscreetProvider({ children }: { children: ReactNode }) {
     await Promise.all([
       SecureStore.deleteItemAsync(FAILS_KEY),
       SecureStore.deleteItemAsync(UNTIL_KEY),
-    ]).catch(() => {});
+    ]).catch(() => { });
   }, []);
 
   const verifyPin = useCallback(
@@ -127,7 +127,7 @@ export function DiscreetProvider({ children }: { children: ReactNode }) {
       await Promise.all([
         SecureStore.setItemAsync(FAILS_KEY, String(fails.current)),
         SecureStore.setItemAsync(UNTIL_KEY, String(lockUntil.current)),
-      ]).catch(() => {});
+      ]).catch(() => { });
 
       if (seconds > 0) return { ok: false, reason: "locked", seconds };
       return { ok: false, reason: "wrong", attemptsLeft: Math.max(0, MAX_FREE_ATTEMPTS - fails.current) };
@@ -143,6 +143,11 @@ export function DiscreetProvider({ children }: { children: ReactNode }) {
     },
     [verifyPin],
   );
+
+  const markUnlocked = useCallback(async () => {
+    await clearFailures();
+    setLocked(false);
+  }, [clearFailures]);
 
   const setPin = useCallback(
     async (pin: string) => {
@@ -162,9 +167,14 @@ export function DiscreetProvider({ children }: { children: ReactNode }) {
     async (currentPin: string) => {
       const result = await verifyPin(currentPin);
       if (!result.ok) return result;
-      await Promise.all(ALL_KEYS.map((key) => SecureStore.deleteItemAsync(key))).catch(() => {});
+      await Promise.all(ALL_KEYS.map((key) => SecureStore.deleteItemAsync(key))).catch(() => { });
       setHasPin(false);
       setLocked(false);
+      setSettings((previous) => {
+        const next = { ...previous, biometric: false };
+        void saveSettings(next);
+        return next;
+      });
       return result;
     },
     [verifyPin],
@@ -178,7 +188,7 @@ export function DiscreetProvider({ children }: { children: ReactNode }) {
     await Promise.all([
       ...ALL_KEYS.map((key) => SecureStore.deleteItemAsync(key)),
       AsyncStorage.removeItem(SETTINGS_KEY),
-    ]).catch(() => {});
+    ]).catch(() => { });
     fails.current = 0;
     lockUntil.current = 0;
     setSettings(DEFAULT_SETTINGS);
@@ -200,6 +210,7 @@ export function DiscreetProvider({ children }: { children: ReactNode }) {
     removePin,
     lockNow,
     eraseAll,
+    markUnlocked,
   };
 
   return (

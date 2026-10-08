@@ -1,16 +1,19 @@
 {
   "expo": {
-    "name": "roselink-mobile",
+    "name": "RoseLink",
     "slug": "roselink-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "roselinkmobile",
+    "scheme": "roselink",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "bf.roselink.app"
     },
     "android": {
+      "package": "bf.roselink.app",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -47,7 +50,8 @@
         {
           "faceIDPermission": "RoseLink utilise Face ID pour déverrouiller l'application, uniquement sur votre téléphone."
         }
-      ]
+      ],
+      ["expo-notifications", { "color": "#D6336C" }]
     ],
     "experiments": {
       "typedRoutes": true,

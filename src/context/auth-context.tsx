@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setOnboarded(true);
     try {
       await AsyncStorage.setItem(ONBOARDED_KEY, "1");
-    } catch {}
+    } catch { }
   };
 
   const signUp = async (next: Account) => {
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         [SESSION_KEY, "1"],
         [ONBOARDED_KEY, "1"],
       ]);
-    } catch {}
+    } catch { }
   };
 
   const signIn = async (identifier: string): Promise<SignInResult> => {
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSignedIn(true);
     try {
       await AsyncStorage.setItem(SESSION_KEY, "1");
-    } catch {}
+    } catch { }
     return { ok: true };
   };
 
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSignedIn(false);
     try {
       await AsyncStorage.setItem(SESSION_KEY, "0");
-    } catch {}
+    } catch { }
   };
 
   const updateAccount = async (changes: Partial<Account>) => {
@@ -96,15 +96,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccount(next);
     try {
       await AsyncStorage.setItem(ACCOUNT_KEY, JSON.stringify(next));
-    } catch {}
+    } catch { }
   };
 
   const deleteAccount = async () => {
     setAccount(null);
     setSignedIn(false);
     try {
-      await AsyncStorage.multiRemove([ACCOUNT_KEY, SESSION_KEY]);
-    } catch {}
+      await AsyncStorage.multiRemove([
+        ACCOUNT_KEY,
+        SESSION_KEY,
+        "roselink.selfexam.last",
+        "roselink.mood.entries",
+      ]);
+    } catch { }
   };
 
   const value: AuthContextValue = {

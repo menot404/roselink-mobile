@@ -79,6 +79,8 @@ function RootNavigator() {
             <Stack.Screen name="histoires" options={{ headerShown: true, title: "Histoires de femmes" }} />
             <Stack.Screen name="reconstruction" options={{ headerShown: true, title: "Reconstruction" }} />
             <Stack.Screen name="discret" options={{ headerShown: true, title: "Mode discret" }} />
+            <Stack.Screen name="rappels" options={{ headerShown: true, title: "Rappels" }} />
+            <Stack.Screen name="apropos" options={{ headerShown: true, title: "À propos" }} />  
           </Stack.Protected>
         </Stack>
       </DiscreetProvider>

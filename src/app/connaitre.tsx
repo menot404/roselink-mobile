@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import {
   ArrowLeft,
   ArrowRight,
+  Bell,
   CalendarDays,
   Check,
   HeartHandshake,
@@ -155,6 +156,12 @@ export default function Connaitre() {
               Dernier geste enregistré le {formatFrenchDate(lastDone)}.
             </Text>
           ) : null}
+          <Button
+            label="Programmer un rappel mensuel"
+            icon={Bell}
+            variant="secondary"
+            onPress={() => router.push("/rappels")}
+          />
           <Button
             label="Trouver un centre"
             icon={MapPin}

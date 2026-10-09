@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/auth-context";
 import { useAppTheme } from "@/context/theme-context";
+import { clearReminders } from "@/features/rappels/use-reminders";
 
 import { useDiscreet } from "./discreet-context";
 import { PinPad } from "./pin-pad";
@@ -78,13 +79,14 @@ export function LockScreen() {
   const forgot = () =>
     Alert.alert(
       "Code oublié ?",
-      "Pour protéger votre vie privée, il n'existe aucun moyen de retrouver votre code. Vous pouvez effacer toutes vos données sur ce téléphone (compte, journal, réglages) et recommencer.",
+      "Pour protéger votre vie privée, il n'existe aucun moyen de retrouver votre code. Vous pouvez effacer toutes vos données sur ce téléphone (compte, journal, rappels, réglages) et recommencer.",
       [
         { text: "Annuler", style: "cancel" },
         {
           text: "Tout effacer",
           style: "destructive",
           onPress: async () => {
+            await clearReminders();
             await deleteAccount();
             await eraseAll();
             router.replace("/");
@@ -151,11 +153,10 @@ export function LockScreen() {
             accessibilityLabel={`Utiliser ${biometrics.info.name}`}
             className="min-h-12 flex-row items-center justify-center gap-2 rounded-full bg-primary-soft px-5 active:opacity-80 dark:bg-primary-soft-dark"
           >
-            <BiometricIcon 
-              size={30} 
-              color={colors.primary} 
-              className="flex-row items-center justify-center rounded-full"
-            />
+            <BiometricIcon size={22} color={colors.primary} />
+            <Text className="font-jakarta-semibold text-sm text-primary dark:text-primary-dark">
+              Utiliser {biometrics.info.name}
+            </Text>
           </Pressable>
         ) : null}
         <Pressable

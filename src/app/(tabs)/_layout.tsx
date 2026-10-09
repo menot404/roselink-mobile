@@ -3,8 +3,10 @@ import { Tabs } from "expo-router";
 import { FloatingTabBar } from "@/components/navigation/floating-tab-bar";
 import { TopBar } from "@/components/navigation/top-bar";
 import { TabBarSpaceContext } from "@/context/tab-bar-space";
+import { useReminderBootstrap } from "@/features/rappels/use-reminders";
 
 export default function TabsLayout() {
+  useReminderBootstrap();
   return (
     <TabBarSpaceContext.Provider value>
       <Tabs

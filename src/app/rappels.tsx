@@ -43,7 +43,8 @@ const AHEAD: Option<string>[] = [
 export default function Rappels() {
   const { user } = useAuth();
   const { settings } = useDiscreet();
-  const { config, loaded, permission, persist, askPermission, scheduleAll } = useReminders();
+  const { config, loaded, permission, persist, askPermission, scheduleAll } =
+    useReminders();
   const [info, setInfo] = useState("");
 
   const support = user?.profile === "support";
@@ -58,15 +59,24 @@ export default function Rappels() {
       next.medication.enabled ||
       next.appointment.enabled;
     let allowed = permission === "granted";
-    if (anyEnabled && !allowed) allowed = await askPermission();
+    if (anyEnabled && !allowed && permission !== "unavailable")
+      allowed = await askPermission();
     await persist(next);
     if (allowed) await scheduleAll(next, { discreet, support });
   };
 
   const runTest = async () => {
+    if (permission === "unavailable") {
+      setInfo(
+        "Les rappels fonctionnent dans l'application installée (APK), pas dans Expo Go.",
+      );
+      return;
+    }
     const allowed = permission === "granted" || (await askPermission());
     if (!allowed) {
-      setInfo("Les notifications sont refusées : autorisez-les dans les réglages du téléphone.");
+      setInfo(
+        "Les notifications sont refusées : autorisez-les dans les réglages du téléphone.",
+      );
       return;
     }
     await scheduleTest("selfExam", discreet);
@@ -86,14 +96,17 @@ export default function Rappels() {
 
   if (!loaded) return null;
 
-  const appointmentAt = config.appointment.at ? new Date(config.appointment.at) : null;
-  const appointmentPast = appointmentAt !== null && appointmentAt.getTime() <= Date.now();
+  const appointmentAt = config.appointment.at
+    ? new Date(config.appointment.at)
+    : null;
+  const appointmentPast =
+    appointmentAt !== null && appointmentAt.getTime() <= Date.now();
 
   return (
     <Screen padTop={false}>
       <Text className="font-jakarta text-base leading-6 text-ink-soft dark:text-ink-soft-dark">
-        Des petits rappels pour penser à vous. Ils sont programmés sur votre téléphone : rien n'est
-        envoyé sur Internet.
+        Des petits rappels pour penser à vous. Ils sont programmés sur votre
+        téléphone : rien n'est envoyé sur Internet.
       </Text>
 
       {permission === "denied" ? (
@@ -102,14 +115,26 @@ export default function Rappels() {
             Les notifications sont désactivées
           </Text>
           <Text className="font-jakarta text-sm leading-5 text-ink-soft dark:text-ink-soft-dark">
-            Autorisez RoseLink à envoyer des notifications dans les réglages du téléphone pour
-            recevoir vos rappels.
+            Autorisez RoseLink à envoyer des notifications dans les réglages du
+            téléphone pour recevoir vos rappels.
           </Text>
           <Button
             label="Ouvrir les réglages du téléphone"
             variant="secondary"
-            onPress={() => Linking.openSettings().catch(() => {})}
+            onPress={() => Linking.openSettings().catch(() => { })}
           />
+        </Card>
+      ) : null}
+
+      {permission === "unavailable" ? (
+        <Card className="gap-2">
+          <Text className="font-jakarta-bold text-base text-ink dark:text-ink-dark">
+            Rappels indisponibles dans Expo Go
+          </Text>
+          <Text className="font-jakarta text-sm leading-5 text-ink-soft dark:text-ink-soft-dark">
+            Sur Android, Expo Go ne permet plus d'utiliser les notifications. Vos choix sont enregistrés,
+            et les rappels fonctionneront dans l'application installée (APK).
+          </Text>
         </Card>
       ) : null}
 
@@ -119,7 +144,10 @@ export default function Rappels() {
           description="Un rappel chaque mois pour connaître vos seins."
           value={config.selfExam.enabled}
           onValueChange={(enabled) =>
-            void change({ ...config, selfExam: { ...config.selfExam, enabled } })
+            void change({
+              ...config,
+              selfExam: { ...config.selfExam, enabled },
+            })
           }
         />
         {config.selfExam.enabled ? (
@@ -130,7 +158,10 @@ export default function Rappels() {
               options={DAYS}
               value={String(config.selfExam.day)}
               onChange={(value) =>
-                void change({ ...config, selfExam: { ...config.selfExam, day: Number(value) } })
+                void change({
+                  ...config,
+                  selfExam: { ...config.selfExam, day: Number(value) },
+                })
               }
             />
             <OptionGroup
@@ -138,7 +169,10 @@ export default function Rappels() {
               options={HOURS}
               value={String(config.selfExam.hour)}
               onChange={(value) =>
-                void change({ ...config, selfExam: { ...config.selfExam, hour: Number(value) } })
+                void change({
+                  ...config,
+                  selfExam: { ...config.selfExam, hour: Number(value) },
+                })
               }
             />
           </>
@@ -150,7 +184,9 @@ export default function Rappels() {
           label="Journal d'humeur"
           description="Un rappel chaque jour pour noter comment vous vous sentez."
           value={config.mood.enabled}
-          onValueChange={(enabled) => void change({ ...config, mood: { ...config.mood, enabled } })}
+          onValueChange={(enabled) =>
+            void change({ ...config, mood: { ...config.mood, enabled } })
+          }
         />
         {config.mood.enabled ? (
           <OptionGroup
@@ -158,7 +194,10 @@ export default function Rappels() {
             options={HOURS}
             value={String(config.mood.hour)}
             onChange={(value) =>
-              void change({ ...config, mood: { ...config.mood, hour: Number(value) } })
+              void change({
+                ...config,
+                mood: { ...config.mood, hour: Number(value) },
+              })
             }
           />
         ) : null}
@@ -171,7 +210,10 @@ export default function Rappels() {
             description="Un rappel pour penser à votre traitement. Il ne remplace pas les consignes de votre équipe soignante."
             value={config.medication.enabled}
             onValueChange={(enabled) =>
-              void change({ ...config, medication: { ...config.medication, enabled } })
+              void change({
+                ...config,
+                medication: { ...config.medication, enabled },
+              })
             }
           />
           {config.medication.enabled ? (
@@ -196,7 +238,11 @@ export default function Rappels() {
           description="Un rappel unique avant un rendez-vous ou un dépistage."
           value={config.appointment.enabled}
           onValueChange={(enabled) =>
-            void setAppointment(config.appointment.days, config.appointment.hour, enabled)
+            void setAppointment(
+              config.appointment.days,
+              config.appointment.hour,
+              enabled,
+            )
           }
         />
         {config.appointment.enabled ? (
@@ -206,7 +252,11 @@ export default function Rappels() {
               options={AHEAD}
               value={String(config.appointment.days)}
               onChange={(value) =>
-                void setAppointment(Number(value), config.appointment.hour, true)
+                void setAppointment(
+                  Number(value),
+                  config.appointment.hour,
+                  true,
+                )
               }
             />
             <OptionGroup
@@ -214,7 +264,11 @@ export default function Rappels() {
               options={HOURS}
               value={String(config.appointment.hour)}
               onChange={(value) =>
-                void setAppointment(config.appointment.days, Number(value), true)
+                void setAppointment(
+                  config.appointment.days,
+                  Number(value),
+                  true,
+                )
               }
             />
             {appointmentAt ? (
@@ -236,14 +290,21 @@ export default function Rappels() {
           <Text className="font-jakarta-bold text-base text-ink dark:text-ink-dark">
             {preview.title}
           </Text>
-          <Text className="font-jakarta text-sm text-ink dark:text-ink-dark">{preview.body}</Text>
+          <Text className="font-jakarta text-sm text-ink dark:text-ink-dark">
+            {preview.body}
+          </Text>
         </View>
         <Text className="font-jakarta text-xs leading-4 text-ink-soft dark:text-ink-soft-dark">
           {discreet
             ? "Notifications discrètes activées : aucun mot lié à la santé. Vous pouvez changer cela dans le Mode discret."
             : "Notifications explicites. Activez les notifications discrètes dans le Mode discret si vous craignez le regard de votre entourage."}
         </Text>
-        <Button label="Tester un rappel" icon={BellRing} variant="secondary" onPress={runTest} />
+        <Button
+          label="Tester un rappel"
+          icon={BellRing}
+          variant="secondary"
+          onPress={runTest}
+        />
         {info ? (
           <Text
             accessibilityLiveRegion="polite"
@@ -257,8 +318,8 @@ export default function Rappels() {
       <View className="flex-row items-center justify-center gap-2">
         <Bell size={14} color="#B02558" />
         <Text className="flex-1 text-center font-jakarta text-xs leading-4 text-ink-soft dark:text-ink-soft-dark">
-          Dans la version réelle, des rappels par SMS seront possibles pour les téléphones sans
-          smartphone.
+          Dans la version réelle, des rappels par SMS seront possibles pour les
+          téléphones sans smartphone.
         </Text>
       </View>
       <Disclaimer />

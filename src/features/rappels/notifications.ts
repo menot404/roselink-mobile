@@ -1,18 +1,41 @@
-import * as Notifications from "expo-notifications";
+import Constants, { ExecutionEnvironment } from "expo-constants";
 import { Platform } from "react-native";
 
 import { notificationText, type NotificationKind } from "@/features/discret/notification-texts";
 
 import { nextMonthlyDates, type ReminderConfig } from "./schedule";
 
-const CHANNEL_ID = "rappels";
-const TRIGGER = Notifications.SchedulableTriggerInputTypes;
+type NotificationsModule = typeof import("expo-notifications");
 
-export type Permission = "granted" | "undetermined" | "denied";
+const CHANNEL_ID = "rappels";
+
+export type Permission = "granted" | "undetermined" | "denied" | "unavailable";
+
+/** Dans Expo Go sur Android, l'import même de expo-notifications échoue depuis le SDK 53. */
+export const IN_EXPO_GO_ANDROID =
+  Platform.OS === "android" && Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
+
+let cached: NotificationsModule | null | undefined;
+
+/** Charge expo-notifications seulement quand c'est possible. */
+function loadNotifications(): NotificationsModule | null {
+  if (IN_EXPO_GO_ANDROID) return null;
+  if (cached === undefined) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      cached = require("expo-notifications") as NotificationsModule;
+    } catch {
+      cached = null;
+    }
+  }
+  return cached;
+}
 
 /** À appeler au démarrage : les rappels s'affichent aussi quand l'application est ouverte. */
 export function setupNotifications() {
-  Notifications.setNotificationHandler({
+  const N = loadNotifications();
+  if (!N) return;
+  N.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowBanner: true,
       shouldShowList: true,
@@ -22,25 +45,29 @@ export function setupNotifications() {
   });
 }
 
-async function ensureChannel() {
+async function ensureChannel(N: NotificationsModule) {
   if (Platform.OS !== "android") return;
-  await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
+  await N.setNotificationChannelAsync(CHANNEL_ID, {
     name: "Rappels",
-    importance: Notifications.AndroidImportance.DEFAULT,
+    importance: N.AndroidImportance.DEFAULT,
     // le contenu est masqué sur l'écran verrouillé
-    lockscreenVisibility: Notifications.AndroidNotificationVisibility.PRIVATE,
+    lockscreenVisibility: N.AndroidNotificationVisibility.PRIVATE,
   });
 }
 
 export async function getPermission(): Promise<Permission> {
-  const result = await Notifications.getPermissionsAsync();
+  const N = loadNotifications();
+  if (!N) return "unavailable";
+  const result = await N.getPermissionsAsync();
   if (result.granted) return "granted";
   return result.canAskAgain ? "undetermined" : "denied";
 }
 
 export async function requestPermission(): Promise<boolean> {
-  await ensureChannel();
-  const result = await Notifications.requestPermissionsAsync();
+  const N = loadNotifications();
+  if (!N) return false;
+  await ensureChannel(N);
+  const result = await N.requestPermissionsAsync();
   return result.granted;
 }
 
@@ -51,8 +78,12 @@ type Options = { discreet: boolean; support: boolean };
  * l'opération est refaite à chaque ouverture de l'application, ce qui renouvelle la fenêtre.
  */
 export async function scheduleAll(config: ReminderConfig, { discreet, support }: Options) {
-  await ensureChannel();
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  const N = loadNotifications();
+  if (!N) return;
+  const TRIGGER = N.SchedulableTriggerInputTypes;
+
+  await ensureChannel(N);
+  await N.cancelAllScheduledNotificationsAsync();
   const now = new Date();
 
   const content = (kind: NotificationKind) => ({
@@ -63,7 +94,7 @@ export async function scheduleAll(config: ReminderConfig, { discreet, support }:
 
   if (config.selfExam.enabled) {
     for (const date of nextMonthlyDates(now, config.selfExam.day, config.selfExam.hour)) {
-      await Notifications.scheduleNotificationAsync({
+      await N.scheduleNotificationAsync({
         content: content("selfExam"),
         trigger: { type: TRIGGER.DATE, date, channelId: CHANNEL_ID },
       });
@@ -71,14 +102,14 @@ export async function scheduleAll(config: ReminderConfig, { discreet, support }:
   }
 
   if (config.mood.enabled) {
-    await Notifications.scheduleNotificationAsync({
+    await N.scheduleNotificationAsync({
       content: content("mood"),
       trigger: { type: TRIGGER.DAILY, hour: config.mood.hour, minute: 0, channelId: CHANNEL_ID },
     });
   }
 
   if (support && config.medication.enabled) {
-    await Notifications.scheduleNotificationAsync({
+    await N.scheduleNotificationAsync({
       content: content("medication"),
       trigger: {
         type: TRIGGER.DAILY,
@@ -92,7 +123,7 @@ export async function scheduleAll(config: ReminderConfig, { discreet, support }:
   if (config.appointment.enabled && config.appointment.at) {
     const at = new Date(config.appointment.at);
     if (at.getTime() > now.getTime()) {
-      await Notifications.scheduleNotificationAsync({
+      await N.scheduleNotificationAsync({
         content: content("appointment"),
         trigger: { type: TRIGGER.DATE, date: at, channelId: CHANNEL_ID },
       });
@@ -101,14 +132,23 @@ export async function scheduleAll(config: ReminderConfig, { discreet, support }:
 }
 
 /** Un rappel d'essai, dans 5 secondes : pratique pour la démonstration. */
-export async function scheduleTest(kind: NotificationKind, discreet: boolean) {
-  await ensureChannel();
-  await Notifications.scheduleNotificationAsync({
+export async function scheduleTest(kind: NotificationKind, discreet: boolean): Promise<boolean> {
+  const N = loadNotifications();
+  if (!N) return false;
+  await ensureChannel(N);
+  await N.scheduleNotificationAsync({
     content: { ...notificationText(kind, discreet), data: { kind }, sound: false },
-    trigger: { type: TRIGGER.TIME_INTERVAL, seconds: 5, channelId: CHANNEL_ID },
+    trigger: {
+      type: N.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 5,
+      channelId: CHANNEL_ID,
+    },
   });
+  return true;
 }
 
 export async function cancelAllReminders() {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  const N = loadNotifications();
+  if (!N) return;
+  await N.cancelAllScheduledNotificationsAsync();
 }

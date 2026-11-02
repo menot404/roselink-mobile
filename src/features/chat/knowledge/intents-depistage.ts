@@ -1,0 +1,177 @@
+import type { Intent } from "./types";
+
+export const DEPISTAGE_INTENTS: Intent[] = [
+  {
+    id: "depistage_def",
+    status: "sourced",
+    sources: ["who-bc"],
+    keywords: [
+      "depist*",
+      "c est quoi le depistage",
+      "a quoi sert le depistage",
+      "qu est ce que le depistage",
+      "diagnostic precoce",
+      "detection precoce",
+      "pourquoi se faire depister",
+    ],
+    reply:
+      "Pour réduire la mortalité du cancer du sein, l'OMS distingue deux démarches : le diagnostic précoce (connaître les signes et consulter vite) et le dépistage (une mammographie proposée aux femmes sans symptôme, en général entre 50 et 69 ans). Les deux se complètent. Dans beaucoup de pays, le diagnostic précoce reste le plus accessible : c'est la raison d'être de RoseLink.",
+    actions: [{ label: "Trouver un centre", href: "/carte" }],
+    followUps: ["À partir de quel âge ?", "Où me faire dépister ?", "C'est gratuit ?"],
+  },
+  {
+    id: "age_depistage",
+    status: "sourced",
+    sources: ["who-bc"],
+    keywords: [
+      "quel age",
+      "a partir de quel age",
+      "age du depistage",
+      "50 ans",
+      "40 ans",
+      "a quel age",
+      "tranche d age",
+      "trop tot pour",
+    ],
+    reply:
+      "Selon l'OMS, le dépistage par mammographie s'adresse en général aux femmes de 50 à 69 ans qui n'ont aucun symptôme. Mais si vous remarquez un signe, quel que soit votre âge, il faut consulter. Si des proches ont eu un cancer du sein, parlez-en à un professionnel : il pourra vous conseiller un suivi adapté. Au Burkina Faso, la disponibilité des examens dépend des centres.",
+    actions: [{ label: "Trouver un centre", href: "/carte" }],
+    followUps: ["Quels sont les signes ?", "Est-ce héréditaire ?", "C'est gratuit ?"],
+  },
+  {
+    id: "mammographie",
+    status: "review",
+    sources: ["inca", "quotidien"],
+    keywords: ["mammograph*", "mamograph*", "mammo", "mamo"],
+    reply:
+      "La mammographie est une radiographie des seins. C'est l'examen de référence du dépistage : elle peut repérer de petites anomalies avant qu'on puisse les sentir. Elle est parfois moins informative chez les femmes jeunes, dont les seins sont plus denses : une échographie peut alors la compléter. Le professionnel choisit l'examen adapté à votre situation.",
+    followUps: ["Est-ce douloureux ?", "C'est quoi une échographie ?", "C'est gratuit ?"],
+  },
+  {
+    id: "echographie",
+    status: "review",
+    sources: ["inca", "quotidien"],
+    keywords: ["echograph*", "echo", "ultrason*"],
+    reply:
+      "L'échographie utilise des ultrasons pour explorer l'intérieur du sein : elle est indolore et sans danger. Elle complète souvent la mammographie, notamment pour examiner une boule ou chez les femmes jeunes. Elle ne suffit pas à elle seule à poser un diagnostic : si besoin, une biopsie peut le confirmer.",
+    followUps: ["C'est quoi une biopsie ?", "Comment se passe un examen ?"],
+  },
+  {
+    id: "mammo_vs_echo",
+    status: "review",
+    sources: ["inca", "quotidien"],
+    keywords: [
+      "mammographie ou echographie",
+      "echographie ou mammographie",
+      "mammographie et echographie",
+      "echographie et mammographie",
+      "difference entre mammographie",
+      "difference entre echographie",
+      "difference mammographie",
+      "quelle difference",
+      "lequel choisir",
+    ],
+    reply:
+      "La mammographie est une radiographie, l'examen de référence du dépistage. L'échographie utilise des ultrasons : elle est indolore et complète la mammographie, notamment pour examiner une boule ou chez les femmes jeunes. Ce n'est pas à vous de choisir : le professionnel décide de l'examen adapté après vous avoir examinée.",
+    followUps: ["Est-ce douloureux ?", "Comment se passe un examen ?"],
+  },
+  {
+    id: "biopsie",
+    status: "review",
+    sources: ["who-bc", "msd"],
+    keywords: ["biops*", "prelevement*", "cytoponction", "ponction"],
+    reply:
+      "Une biopsie consiste à prélever un petit morceau de tissu pour l'analyser : c'est ce qui permet de savoir avec certitude si une anomalie est un cancer ou non. Elle n'est proposée qu'après un examen clinique et souvent une imagerie. Le professionnel vous expliquera comment elle se passe.",
+    followUps: ["Comment se passe un examen ?", "C'est quoi une échographie ?"],
+  },
+  {
+    id: "examen_clinique",
+    status: "sourced",
+    sources: ["inca", "who-bc"],
+    keywords: [
+      "examen clinique",
+      "examen des seins",
+      "palpation par",
+      "examen par un professionnel",
+      "qui peut m examiner",
+      "qui fait l examen",
+      "qui examine",
+    ],
+    reply:
+      "L'examen clinique, c'est l'observation et la palpation des seins et des aisselles par un professionnel de santé. Il dure quelques minutes et permet de repérer des anomalies que l'on ne sent pas toujours soi-même. C'est souvent la première étape, avant une éventuelle imagerie.",
+    actions: [{ label: "Trouver un centre", href: "/carte" }],
+    followUps: ["Comment se passe un examen ?", "C'est gratuit ?"],
+  },
+  {
+    id: "douleur_examen",
+    status: "review",
+    sources: ["quotidien"],
+    keywords: [
+      "ca fait mal",
+      "est ce douloureux",
+      "douloureux",
+      "douloureuse",
+      "indolore",
+      "mammographie fait mal",
+      "fait il mal",
+    ],
+    reply:
+      "L'échographie est indolore. Pour la mammographie, le sein est comprimé quelques secondes : cela peut être inconfortable, mais c'est bref. N'hésitez pas à dire au personnel si vous avez peur ou mal. Programmer l'examen quand les seins sont moins sensibles (après les règles) peut aider.",
+    followUps: ["Comment se passe un examen ?", "J'ai peur"],
+  },
+  {
+    id: "deroulement",
+    status: "review",
+    sources: ["inca"],
+    keywords: [
+      "comment se passe",
+      "comment ca se passe",
+      "comment se deroule",
+      "deroulement",
+      "que se passe t il",
+      "a quoi s attendre",
+      "premier rendez vous",
+      "premiere consultation",
+      "etapes de l examen",
+    ],
+    reply:
+      "En général : on vous accueille et on vous pose quelques questions (antécédents, depuis quand vous avez remarqué un changement) ; le professionnel examine vos seins ; si besoin, une échographie ou une mammographie est proposée ; puis on vous explique les résultats et la suite. Vous pouvez venir accompagnée et poser toutes vos questions.",
+    actions: [{ label: "Trouver un centre", href: "/carte" }],
+    followUps: ["Que dois-je apporter ?", "Est-ce douloureux ?", "C'est gratuit ?"],
+  },
+  {
+    id: "resultats",
+    status: "review",
+    sources: ["inca"],
+    keywords: [
+      "resultat*",
+      "combien de temps pour avoir",
+      "anomalie*",
+      "anormal*",
+      "examen anormal",
+      "suspect*",
+      "birads",
+    ],
+    reply:
+      "Selon les centres, un premier avis peut être donné rapidement et un examen complémentaire proposé si besoin. Une anomalie repérée ne veut pas dire cancer : beaucoup d'anomalies sont bénignes. Demandez au centre quand et comment vous recevrez vos résultats, et ne restez pas sans réponse.",
+    followUps: ["C'est quoi une biopsie ?", "J'ai peur"],
+  },
+  {
+    id: "preparer",
+    status: "review",
+    keywords: [
+      "preparer ma consultation",
+      "preparer mon rendez vous",
+      "preparer mon examen",
+      "quoi apporter",
+      "que dois je apporter",
+      "questions a poser",
+      "avant l examen",
+      "que dois je prevoir",
+    ],
+    reply:
+      "Pour préparer votre consultation : pièce d'identité, carnet ou téléphone pour noter, date de vos dernières règles, et une personne de confiance si vous le souhaitez. Questions utiles : quel examen et pourquoi ? quand aurai-je les résultats ? que faire en attendant ? quand revenir ? y a-t-il un coût ou une aide possible ?",
+    actions: [{ label: "Trouver un centre", href: "/carte" }],
+    followUps: ["Comment se passe un examen ?", "C'est gratuit ?"],
+  },
+];

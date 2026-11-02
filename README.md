@@ -1,56 +1,104 @@
-# Welcome to your Expo app 👋
+# RoseLink
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Application mobile **gratuite** de prévention et d'accompagnement face au cancer du sein, pour les femmes
+burkinabè. Projet réalisé pour le **Hackathon Octobre Rose 2026** (Orange Digital Center, Ouagadougou).
 
-## Get started
+> RoseLink informe et oriente. Elle **ne remplace pas** un professionnel de santé.
 
-1. Install dependencies
+## Ce que fait l'application
 
-   ```bash
-   npm install
-   ```
+- **Prévention** : signes d'alerte, geste mensuel pas à pas, quiz « Mythes ou réalités », conseils en audio.
+- **Carte** des centres de dépistage, triés par distance, avec itinéraire.
+- **Chat** : une assistante, en deux espaces (prévention et accompagnement), avec sources.
+- **Accompagnement** : journal d'humeur, respiration guidée, histoires de femmes, reconstruction et image de soi.
+- **Association** : répertoire, don et demande d'aide (simulés).
+- **Mode discret** : code PIN, empreinte ou visage, bouton « Quitter vite », aperçu masqué, notifications discrètes.
+- **Rappels** : notifications locales (geste mensuel, humeur, rendez-vous).
+- Thème clair et sombre, qui suit le téléphone.
 
-2. Start the app
+## Ce qui est réel, ce qui est simulé
 
-   ```bash
-   npx expo start
-   ```
+| Fonction | État |
+|---|---|
+| Contenus de santé | Sourcés (OMS, ministère, hôpitaux). **Relecture par un professionnel en cours.** |
+| Chat | Base de réponses avec sources, **pas une IA libre**. |
+| Audio | Sons de démonstration. Enregistrements d'experts à venir. |
+| Carte et distances | Réelles. Fiches des centres **à vérifier**. |
+| Histoires de femmes | **Fictives**. |
+| Don et demande d'aide | **Simulés**. |
+| Rappels | Notifications locales réelles. |
+| Données | Elles restent sur le téléphone. |
 
-In the output, you'll find options to open the app in a
+## Pile technique
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Expo (SDK 57) · React Native · TypeScript · Expo Router · NativeWind (Tailwind 3) · pnpm.
+Carte : Leaflet dans une WebView (fonds © OpenStreetMap, © CARTO).
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Démarrer
 
-## Get a fresh project
-
-When you're ready, run:
+Prérequis : Node 22.13 ou plus, pnpm, un téléphone avec Expo Go (ou un émulateur Android).
 
 ```bash
-npm run reset-project
+pnpm install
+pnpm start        # puis scanner le QR code avec Expo Go
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Le réglage `nodeLinker: hoisted` de `pnpm-workspace.yaml` est nécessaire : il permet à Metro de
+résoudre les dépendances de NativeWind.
 
-### Other setup steps
+## Qualité
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+pnpm run typecheck   # vérification TypeScript
+pnpm run check:chat  # contrôle des bases de connaissances du chat (cas de test inclus)
+```
 
-## Learn more
+Ces deux commandes tournent à chaque Pull Request (voir `.github/workflows/ci.yml`).
 
-To learn more about developing your project with Expo, look at the following resources:
+## Structure
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+app/ ou src/app/          écrans (Expo Router)
+src/features/             un dossier par fonctionnalité (chat, centres, audio, discret, rappels…)
+src/components/ui/        composants d'interface
+src/data/                 centres, associations, audios, histoires
+src/context/              thème, compte
+scripts/                  génération des sons de démonstration et des icônes, contrôle du chat
+```
 
-## Join the community
+## Contenus et relecture
 
-Join our community of developers creating universal apps.
+Toutes les réponses du chat sont listées avec leurs sources dans `15-fiche-relecture-chat.md`
+(à régénérer avec `pnpm exec tsx scripts/make-review-sheet.ts` après modification). Chaque réponse porte
+un statut : « sourcée » ou « à valider ». Ne retirer la mention « en cours de relecture »
+(`SHOW_REVIEW_BADGE`) qu'après validation par un professionnel de santé.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Générer une version installable (APK Android)
+
+```bash
+pnpm dlx eas-cli@latest build --platform android --profile preview
+```
+
+## Confidentialité et sécurité
+
+- Aucune donnée n'est envoyée sur Internet : compte, journal, réglages et rappels restent sur le téléphone.
+- Le code PIN n'est jamais enregistré en clair (empreinte salée dans le coffre du téléphone).
+- « Effacer mes données » supprime tout ce que l'application a enregistré.
+- Limite : un code à 4 chiffres protège contre une personne qui prend le téléphone quelques minutes,
+  pas contre une attaque informatique.
+
+## Contribuer
+
+Une branche par fonctionnalité (`feat/...`), une Pull Request, puis fusion sur `main` quand la CI est verte.
+
+## Feuille de route
+
+1. Prototype (ce dépôt) : tous les modules, données de démonstration.
+2. Vraies briques : modèle de langage avec garde-fous, voix d'experts en mooré, dioula et fulfuldé,
+   base de centres vérifiée, dons Orange Money et Mobicash.
+3. Accès : SMS/USSD, prise de rendez-vous, agents de santé communautaires, cartes hors ligne.
+4. Échelle : tableau de bord anonymisé pour le ministère et les ONG, autres dépistages.
+
+## Licence
+
+Voir `LICENSE`.
